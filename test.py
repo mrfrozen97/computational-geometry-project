@@ -1,13 +1,17 @@
-from sklearn.datasets import load_iris
+from sklearn.datasets import load_iris, load_wine
 import matplotlib.pyplot as plt
 import numpy as np
-from tsne import Tsne
-from tsne_deepseek import TSNE
+from src.tsne import Tsne
+from sklearn.metrics import silhouette_score
+from sklearn.metrics import davies_bouldin_score
+
 
 # Load dataset
-iris = load_iris()
+#iris = load_iris()
+iris = load_wine()
 X = iris.data
 y = iris.target
+print(f"Dimentions: {len(X[0])}")
 
 # Run your t-SNE
 tsne = Tsne(data=X, n_components=2, perplexity=10, learning_rate=30, n_iter=20000)
@@ -23,3 +27,9 @@ plt.colorbar(scatter)
 plt.grid(True)
 plt.show()
 
+
+score = silhouette_score(X_embedded, y)
+print(f"Silhouette Score: {score:.4f}")
+
+db_score = davies_bouldin_score(X_embedded, y)
+print(f"Davies–Bouldin Index: {db_score:.4f}")

@@ -111,7 +111,7 @@ class Tsne():
                 for i in range(self.animation_RPS):
 
                     Q = self.compute_q_similarities(self.Y)
-
+                    print("."*int(i*20/self.animation_RPS), end="\r")
                     # Stop early exaggeration after 100 iterations
                     # if iteration == 100:
                     #     self.P /= self.early_exaggeration
