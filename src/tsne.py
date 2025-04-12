@@ -94,7 +94,7 @@ class Tsne():
         self.animation_RPS = 100
 
         # Early exaggeration
-        self.P *= self.early_exaggeration
+        # self.P *= self.early_exaggeration
         #print(self.Y)
         # Set up the figure
         fig, ax = plt.subplots(figsize=(8, 6))

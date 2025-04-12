@@ -11,8 +11,8 @@ X, y = mnist["data"], mnist["target"].astype(int)
 X = X / 255.0
 
 # If needed, reduce dataset size for speed (e.g., take first 1000)
-X_small = X[:400]
-y_small = y[:400]
+X_small = X[:500]
+y_small = y[:500]
 color_y = []
 colors = ["blue", "red", "orange", "yellow", "green", "black", "cyan", "pink", "grey", "purple"]
 print(y_small)
@@ -21,7 +21,7 @@ for i in range(len(y_small)):
     color_y.append(colors[temp])
 print(color_y)
 # Run your t-SNE
-tsne = Tsne(data=X, n_components=2, perplexity=30, learning_rate=100, n_iter=20000)
+tsne = Tsne(data=X, n_components=2, perplexity=50, learning_rate=200, n_iter=20000)
 X_embedded = tsne.fit_transform(X_small, class_Y=color_y)
 
 # Plot the 2D projection

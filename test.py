@@ -7,14 +7,14 @@ from sklearn.metrics import davies_bouldin_score
 
 
 # Load dataset
-#iris = load_iris()
-iris = load_wine()
+iris = load_iris()
+# iris = load_wine()
 X = iris.data
 y = iris.target
 print(f"Dimentions: {len(X[0])}")
 
 # Run your t-SNE
-tsne = Tsne(data=X, n_components=2, perplexity=10, learning_rate=30, n_iter=20000)
+tsne = Tsne(data=X, n_components=2, perplexity=50, learning_rate=10, n_iter=200000)
 X_embedded = tsne.fit_transform(X, class_Y=y)
 
 # Plot the 2D projection
