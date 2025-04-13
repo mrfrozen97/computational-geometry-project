@@ -9,8 +9,12 @@ data = pd.read_csv("data/country/Country-data.csv")
 X = data[["child_mort","exports","health","imports","income","inflation","life_expec","total_fer","gdpp"]].to_numpy()
 Y = data["country"].to_numpy()
 
+row_norms = np.linalg.norm(X, axis=1, keepdims=True)
+row_norms[row_norms == 0] = 1  # avoid division by zero
+X = X / row_norms
+
 cluster = KMeans(n_clusters=2, random_state=23, max_iter=300)
-n_clusters = 3#cluster.elbow_method(X, max_k=10)
+n_clusters = cluster.elbow_method(X, max_k=10)
 cluster = KMeans(n_clusters=n_clusters, random_state=23, max_iter=300)
 cluster.train(X)
 Y_predict = cluster.assign_clusters(X)
