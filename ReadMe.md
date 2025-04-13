@@ -50,5 +50,10 @@ Values range from -1 to 1:
    * Higher = better separation.
    * Especially useful when you know true cluster labels.
 
+# Kmeans Implementation
+* We use Elbow method to determine the number of cluster centers.
+* We assign label to cluster centers based on voting method, which means that the label of cluster is majority label of elements in the cluster.
+* Normalize data before use so that each dimension effects the cluster equally
+
 # References
 

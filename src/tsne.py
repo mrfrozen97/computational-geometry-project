@@ -82,6 +82,42 @@ class Tsne():
 
         return grad
 
+    def fit_transform_without_graph(self, X):
+        np.random.seed(42)
+        print("hello")
+        self.Y = np.random.randn(X.shape[0], self.n_components) * 1e-4
+        self.Y_prev = np.zeros_like(self.Y)
+        X = (X - X.mean(axis=0)) / (X.std(axis=0) + 1e-8)
+
+        distances = self.compute_pairwise_distance(X)
+        self.P = self._compute_p_matrix(distances)
+        prev_loss = 0
+        for iteration in range(self.n_iter):
+
+                    Q = self.compute_q_similarities(self.Y)
+                    # Stop early exaggeration after 100 iterations
+                    # if iteration == 100:
+                    #     self.P /= self.early_exaggeration
+
+                    gradients = self._compute_gradients(self.P, Q, self.Y)
+
+                    # Update with momentum
+                    Y_update = self.learning_rate * gradients + self.momentum * (self.Y - self.Y_prev)
+                    self.Y_prev = self.Y.copy()
+                    self.Y -= Y_update
+                    if iteration % 100 == 0 or iteration == self.n_iter - 1:
+                    # Check for convergence
+                        print(f"Iteration   {iteration}")
+                        loss = np.sum(self.P * np.log((self.P + 1e-12) / (Q + 1e-12)))
+                        if iteration > 0 and np.abs(loss - prev_loss) < 1e-6:
+                            print("Converged!")
+                            return self.Y
+                        prev_loss = loss
+        return self.Y
+
+
+
+
     def fit_transform(self, X, class_Y):
         np.random.seed(42)
         print("hello")
@@ -101,6 +137,7 @@ class Tsne():
         ax.set_xlim(-30, 30)
         ax.set_ylim(-30, 30)
         scatter = ax.scatter(self.Y[:, 0], self.Y[:, 1], c=class_Y, cmap='viridis')
+
 
         def init():
             scatter.set_offsets(np.empty((0, 2)))  # Empty array
