@@ -109,6 +109,7 @@ class KMeans:
 
         # Run the algorithm when either we reach max iterations or the centers don't change
         for _ in range(self.max_iter):
+            print(f"Iteration {_}", "\r")
             self.labels_ = self.assign_clusters(X)
             new_centroids = self.update_centroids(X, self.labels_)
 

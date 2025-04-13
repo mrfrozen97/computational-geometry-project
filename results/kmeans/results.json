@@ -1,0 +1,30 @@
+{
+  "MNIST_dataset": {
+    "accuracy": 0.535,
+    "f1-score": 0.5079175728064995
+  },
+  "IRIS_datset": {
+    "accuracy": 0.8933333333333333,
+    "f1-score": 0.8917748917748919
+  },
+  "Wine_datset": {
+    "accuracy": 0.7078651685393258,
+    "f1-score": 0.6872222272441025
+  },
+  "Cancer_datset": {
+    "accuracy": 0.8541300527240774,
+    "f1-score": 0.82680748849405
+  },
+  "Swiss_Roll_dataset": {
+    "accuracy": 0.598,
+    "f1-score": 0.4898372074924511
+  },
+  "Rings_dataset": {
+    "accuracy": 0.43583333333333335,
+    "f1-score": 0.3830938390453938
+  },
+  "Half_moons_dataset": {
+    "accuracy": 0.8333333333333334,
+    "f1-score": 0.7777777777777777
+  }
+}
