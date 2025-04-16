@@ -1,8 +1,8 @@
 {
   "Rings_dataset": {
-    "accuracy": 0.415,
-    "f1-score": 0.34447463686903884,
-    "max_distance": 4.4798133148083625
+    "accuracy": 0.43166666666666664,
+    "f1-score": 0.37602666268882334,
+    "max_distance": 4.566728488566651
   },
   "Half_moons_dataset": {
     "accuracy": 0.9791666666666666,

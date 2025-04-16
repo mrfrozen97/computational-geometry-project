@@ -14,15 +14,14 @@ class KCenter:
     def initialize_centroids(self, X):
         np.random.seed(self.random_state)
         n_samples = X.shape[0]
-        centroids_indices = [np.random.randint(n_samples)]
+        centroids = [X[np.random.randint(n_samples)]]
 
         for _ in range(self.n_clusters - 1):
-            distances = np.sqrt(((X - X[centroids_indices][:, np.newaxis]) ** 2).sum(axis=2))
-            min_distances = np.min(distances, axis=0)
-            next_centroid_idx = np.argmax(min_distances)
-            centroids_indices.append(next_centroid_idx)
+            distances = np.array([np.min([np.linalg.norm(x - c) for c in centroids]) for x in X])
+            next_centroid = X[np.argmax(distances)]
+            centroids.append(next_centroid)
 
-        self.centroids = X[centroids_indices]
+        self.centroids = np.array(centroids)
 
     def assign_clusters(self, X):
         distances = np.sqrt(((X[:, np.newaxis] - self.centroids) ** 2).sum(axis=2))
