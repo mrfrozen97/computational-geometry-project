@@ -3,7 +3,7 @@ import json
 import matplotlib.pyplot as plt
 import numpy as np
 from scipy.stats import mode
-from sklearn.datasets import make_moons
+from sklearn.datasets import make_moons, load_iris, load_wine, fetch_openml, load_breast_cancer, make_swiss_roll
 from sklearn.metrics import f1_score, accuracy_score
 
 from src.kcenter import KCenter  # Changed import
@@ -113,3 +113,40 @@ if __name__ == "__main__":
 
     X_moons, y_moons = generate_multiple_moons()
     test_dataset(X_moons, y_moons, n_clusters=6, name="Half_moons_dataset")
+
+    # MNIST dataset
+    mnist = fetch_openml('mnist_784', version=1, as_frame=False)
+    X, y = mnist["data"], mnist["target"].astype(int)
+    # Normalize the data (optional, but often helps)
+    X = X / 255.0
+
+    # # Taking first 1000 due to hardware limitations
+    X_small = X[:1000]
+    y_small = y[:1000]
+    test_dataset(X_small, y_small, n_clusters=10, name="MNIST_dataset")
+
+    # Iris dataset
+    # Load dataset
+    iris = load_iris()
+    # iris = load_wine()
+    X = iris.data
+    y = iris.target
+    test_dataset(X, y, n_clusters=3, name="IRIS_datset")
+
+    # # Wine dataset
+    wine = load_wine()
+    X = wine.data
+    y = wine.target
+    test_dataset(X, y, n_clusters=5, name="Wine_datset")
+
+    # Breast Cancer dataset
+    cancer = load_breast_cancer()
+    X = cancer.data
+    y = cancer.target
+    test_dataset(X, y, n_clusters=2, name="Cancer_datset")
+
+    # Synthetic Swiss Roll dataset
+    X, y_cont = make_swiss_roll(n_samples=1000, noise=0.1)
+    n_classes = 6
+    y_class = np.digitize(y_cont, bins=np.linspace(y_cont.min(), y_cont.max(), n_classes))
+    test_dataset(X, y_class, n_clusters=n_classes, name="Swiss_Roll_dataset")
