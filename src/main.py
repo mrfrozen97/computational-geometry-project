@@ -1,5 +1,6 @@
 import numpy as np
 
+
 class TSNE:
     def __init__(self, n_components=2, perplexity=30.0, learning_rate=200, n_iter=1000):
         self.n_components = n_components  # Target dimensionality (default: 2D)
@@ -9,11 +10,12 @@ class TSNE:
 
     def _pairwise_distances(self, X):
         """Compute pairwise squared Euclidean distances for high-dimensional data."""
-        sum_X = np.sum(X**2, axis=1)
+        sum_X = np.sum(X ** 2, axis=1)
         return -2 * np.dot(X, X.T) + sum_X[:, np.newaxis] + sum_X[np.newaxis, :]
 
     def _compute_p_matrix(self, distances):
         """Compute P (similarity in high-dimensional space) using a Gaussian kernel."""
+
         def binary_search_beta(D, target_perp, tol=1e-5, max_iter=50):
             """Binary search to find beta (precision of Gaussian)."""
             beta = np.ones(D.shape[0])

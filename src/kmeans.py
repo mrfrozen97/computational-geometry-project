@@ -1,20 +1,19 @@
-import numpy as np
 import matplotlib.pyplot as plt
-from sklearn.datasets import make_blobs
+import numpy as np
 from kneed import KneeLocator
 from matplotlib.animation import FuncAnimation
-import matplotlib.animation as animation
 from matplotlib.animation import PillowWriter
+from sklearn.datasets import make_blobs
 
 
 # Class Kmeans implements the kmeans clustering algorithm
 class KMeans:
     def __init__(self, n_clusters=3, max_iter=300, tol=1e-4, random_state=None):
 
-        self.n_clusters = n_clusters        # Number of cluster centers/clusters
-        self.max_iter = max_iter            # Maximum permitted iterations if the algorithm does not converge
-        self.tol = tol                      # The Error value accepted for convergence
-        self.random_state = random_state    # Used to initialize random cluster centers
+        self.n_clusters = n_clusters  # Number of cluster centers/clusters
+        self.max_iter = max_iter  # Maximum permitted iterations if the algorithm does not converge
+        self.tol = tol  # The Error value accepted for convergence
+        self.random_state = random_state  # Used to initialize random cluster centers
 
         # Initialize variables required for later
         self.centroids = None
@@ -31,7 +30,7 @@ class KMeans:
 
     # Computes distance between cluster points and the centers. Assign the cluster with minimum distance
     def assign_clusters(self, X):
-        distances = np.sqrt(((X[:, np.newaxis] - self.centroids)**2).sum(axis=2))
+        distances = np.sqrt(((X[:, np.newaxis] - self.centroids) ** 2).sum(axis=2))
         return np.argmin(distances, axis=1)
 
     # Compute new centers by taking the mean of points in the newly formed clusters
@@ -50,7 +49,7 @@ class KMeans:
         ax.set_ylim(-5, 10)
         self.scatter_points = ax.scatter(X[:, 0], X[:, 1], c=self.labels_, s=50, cmap='viridis')
         self.scatter_center = ax.scatter(self.centroids[:, 0], self.centroids[:, 1],
-                    c='red', s=200, alpha=0.75, marker='X')
+                                         c='red', s=200, alpha=0.75, marker='X')
 
         # Mutable wrapper to access ani inside update
         ani_holder = {}
@@ -72,19 +71,19 @@ class KMeans:
             self.scatter_center.remove()
             self.scatter_points = ax.scatter(X[:, 0], X[:, 1], c=self.labels_, s=50, cmap='viridis')
             self.scatter_center = ax.scatter(self.centroids[:, 0], self.centroids[:, 1],
-                    c='red', s=200, alpha=0.75, marker='X')
+                                             c='red', s=200, alpha=0.75, marker='X')
             self.centroids = new_centroids
             return self.scatter_points, self.scatter_center
 
         plt.title("K-Means Clustering")
         ani_holder['ani'] = FuncAnimation(
-                fig,
-                update,
-                frames=self.max_iter,
-                blit=True,
-                interval=frame_delay,
-                repeat=False,
-            )
+            fig,
+            update,
+            frames=self.max_iter,
+            blit=True,
+            interval=frame_delay,
+            repeat=False,
+        )
         if save_path and ".gif" in save_path:
             ani_holder['ani'].save(save_path, writer=PillowWriter(fps=10))
 
@@ -95,13 +94,11 @@ class KMeans:
 
         # Run the algorithm when either we reach max iterations or the centers don't change
 
-
         # Compute inertia (sum of squared distances to closest center)
         self.inertia_ = 0.0
         for i in range(self.n_clusters):
             cluster_points = X[self.labels_ == i]
             self.inertia_ += np.sum((cluster_points - self.centroids[i]) ** 2)
-
 
     # Run the main K-means algorithm steps
     def train(self, X):
@@ -127,7 +124,7 @@ class KMeans:
 
     # Predicts new points based on the closed cluster center
     def predict(self, X):
-        distances = np.sqrt(((X[:, np.newaxis] - self.centroids)**2).sum(axis=2))
+        distances = np.sqrt(((X[:, np.newaxis] - self.centroids) ** 2).sum(axis=2))
         return np.argmin(distances, axis=1)
 
     # Plots the cluster points and their centeroids
@@ -164,7 +161,6 @@ class KMeans:
         return optimal_k
 
 
-
 # Example usage
 if __name__ == "__main__":
     # Generate sample data
@@ -174,4 +170,3 @@ if __name__ == "__main__":
     kmeans = KMeans(n_clusters=4, random_state=21)
     print(kmeans.train_and_animate(X))
     labels = kmeans.labels_
-

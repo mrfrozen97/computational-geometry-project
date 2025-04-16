@@ -1,6 +1,6 @@
-from sklearn.datasets import fetch_openml
 import matplotlib.pyplot as plt
-import numpy as np
+from sklearn.datasets import fetch_openml
+
 from src.tsne import Tsne
 
 # Load the MNIST dataset

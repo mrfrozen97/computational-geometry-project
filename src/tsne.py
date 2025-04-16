@@ -1,8 +1,6 @@
+import matplotlib.pyplot as plt
 import numpy as np
-import matplotlib.pyplot as plt
-import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
-
 
 
 class Tsne():
@@ -94,29 +92,26 @@ class Tsne():
         prev_loss = 0
         for iteration in range(self.n_iter):
 
-                    Q = self.compute_q_similarities(self.Y)
-                    # Stop early exaggeration after 100 iterations
-                    # if iteration == 100:
-                    #     self.P /= self.early_exaggeration
+            Q = self.compute_q_similarities(self.Y)
+            # Stop early exaggeration after 100 iterations
+            # if iteration == 100:
+            #     self.P /= self.early_exaggeration
 
-                    gradients = self._compute_gradients(self.P, Q, self.Y)
+            gradients = self._compute_gradients(self.P, Q, self.Y)
 
-                    # Update with momentum
-                    Y_update = self.learning_rate * gradients + self.momentum * (self.Y - self.Y_prev)
-                    self.Y_prev = self.Y.copy()
-                    self.Y -= Y_update
-                    if iteration % 100 == 0 or iteration == self.n_iter - 1:
-                    # Check for convergence
-                        print(f"Iteration   {iteration}")
-                        loss = np.sum(self.P * np.log((self.P + 1e-12) / (Q + 1e-12)))
-                        if iteration > 0 and np.abs(loss - prev_loss) < 1e-6:
-                            print("Converged!")
-                            return self.Y
-                        prev_loss = loss
+            # Update with momentum
+            Y_update = self.learning_rate * gradients + self.momentum * (self.Y - self.Y_prev)
+            self.Y_prev = self.Y.copy()
+            self.Y -= Y_update
+            if iteration % 100 == 0 or iteration == self.n_iter - 1:
+                # Check for convergence
+                print(f"Iteration   {iteration}")
+                loss = np.sum(self.P * np.log((self.P + 1e-12) / (Q + 1e-12)))
+                if iteration > 0 and np.abs(loss - prev_loss) < 1e-6:
+                    print("Converged!")
+                    return self.Y
+                prev_loss = loss
         return self.Y
-
-
-
 
     def fit_transform(self, X, class_Y):
         np.random.seed(42)
@@ -131,64 +126,59 @@ class Tsne():
 
         # Early exaggeration
         # self.P *= self.early_exaggeration
-        #print(self.Y)
+        # print(self.Y)
         # Set up the figure
         fig, ax = plt.subplots(figsize=(8, 6))
         ax.set_xlim(-30, 30)
         ax.set_ylim(-30, 30)
         scatter = ax.scatter(self.Y[:, 0], self.Y[:, 1], c=class_Y, cmap='viridis')
 
-
         def init():
             scatter.set_offsets(np.empty((0, 2)))  # Empty array
             return scatter,
 
-
         def update(iteration):
-                for i in range(self.animation_RPS):
+            for i in range(self.animation_RPS):
+                Q = self.compute_q_similarities(self.Y)
+                print("." * int(i * 20 / self.animation_RPS), end="\r")
+                # Stop early exaggeration after 100 iterations
+                # if iteration == 100:
+                #     self.P /= self.early_exaggeration
 
-                    Q = self.compute_q_similarities(self.Y)
-                    print("."*int(i*20/self.animation_RPS), end="\r")
-                    # Stop early exaggeration after 100 iterations
-                    # if iteration == 100:
-                    #     self.P /= self.early_exaggeration
+                gradients = self._compute_gradients(self.P, Q, self.Y)
 
-                    gradients = self._compute_gradients(self.P, Q, self.Y)
+                # Update with momentum
+                Y_update = self.learning_rate * gradients + self.momentum * (self.Y - self.Y_prev)
+                self.Y_prev = self.Y.copy()
+                self.Y -= Y_update
+            # if iteration % 100 == 0 or iteration == self.n_iter - 1:
+            # Check for convergence
+            # if iteration > 0 and np.abs(loss - prev_loss) < 1e-6:
+            #     print("Converged!")
+            #     break
+            # prev_loss = loss
+            # print(self.Y)
+            ax.set_xlim(min(self.Y[:, 0]) - 0.1, max(self.Y[:, 0]) + 0.1)  # 10% buffer on both sides
+            ax.set_ylim(min(self.Y[:, 1]) - 0.1, max(self.Y[:, 1]) + 0.1)  # 10% buffer on both sides
+            loss = np.sum(self.P * np.log((self.P + 1e-12) / (Q + 1e-12)))
+            print(f"Iteration {iteration}: KL Divergence = {loss:.4f}")
+            scatter.set_offsets(np.column_stack((self.Y[:, 0], self.Y[:, 1])))
+            return scatter,
 
-                    # Update with momentum
-                    Y_update = self.learning_rate * gradients + self.momentum * (self.Y - self.Y_prev)
-                    self.Y_prev = self.Y.copy()
-                    self.Y -= Y_update
-                #if iteration % 100 == 0 or iteration == self.n_iter - 1:
-                # Check for convergence
-                    # if iteration > 0 and np.abs(loss - prev_loss) < 1e-6:
-                    #     print("Converged!")
-                    #     break
-                    #prev_loss = loss
-                    #print(self.Y)
-                ax.set_xlim(min(self.Y[:, 0]) - 0.1, max(self.Y[:, 0]) + 0.1)  # 10% buffer on both sides
-                ax.set_ylim(min(self.Y[:, 1]) - 0.1, max(self.Y[:, 1]) + 0.1) # 10% buffer on both sides
-                loss = np.sum(self.P * np.log((self.P + 1e-12) / (Q + 1e-12)))
-                print(f"Iteration {iteration}: KL Divergence = {loss:.4f}")
-                scatter.set_offsets(np.column_stack((self.Y[:, 0], self.Y[:, 1])))
-                return scatter,
-
-        frames = int(self.n_iter/self.animation_RPS)
+        frames = int(self.n_iter / self.animation_RPS)
         print(frames)
         # Create animation
         ani = FuncAnimation(
-                fig,
-                update,
-                frames=frames,
-                init_func=init,
-                blit=True,
-                interval=10,
-                repeat=False
-            )
+            fig,
+            update,
+            frames=frames,
+            init_func=init,
+            blit=True,
+            interval=10,
+            repeat=False
+        )
 
         plt.title("Random Moving Points")
         plt.show()
-
-
 
         return self.Y

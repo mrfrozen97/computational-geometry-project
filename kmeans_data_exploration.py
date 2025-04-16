@@ -1,12 +1,13 @@
-from src.kmeans import KMeans
-from src.tsne import Tsne
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
+from src.kmeans import KMeans
+from src.tsne import Tsne
 
 data = pd.read_csv("data/country/Country-data.csv")
-X = data[["child_mort","exports","health","imports","income","inflation","life_expec","total_fer","gdpp"]].to_numpy()
+X = data[
+    ["child_mort", "exports", "health", "imports", "income", "inflation", "life_expec", "total_fer", "gdpp"]].to_numpy()
 Y = data["country"].to_numpy()
 
 row_norms = np.linalg.norm(X, axis=1, keepdims=True)
@@ -32,5 +33,3 @@ for i, label in enumerate(Y):
 plt.scatter(Transformed_X[:, 0], Transformed_X[:, 1], c=Y_predict, cmap='viridis')
 plt.scatter(Transformed_centers[:, 0], Transformed_centers[:, 1], c='red', s=200, alpha=0.75, marker='X')
 plt.show()
-
-

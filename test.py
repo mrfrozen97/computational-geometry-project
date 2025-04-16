@@ -1,10 +1,9 @@
-from sklearn.datasets import load_iris, load_wine
 import matplotlib.pyplot as plt
-import numpy as np
-from src.tsne import Tsne
-from sklearn.metrics import silhouette_score
+from sklearn.datasets import load_iris
 from sklearn.metrics import davies_bouldin_score
+from sklearn.metrics import silhouette_score
 
+from src.tsne import Tsne
 
 # Load dataset
 iris = load_iris()
@@ -26,7 +25,6 @@ plt.ylabel("Component 2")
 plt.colorbar(scatter)
 plt.grid(True)
 plt.show()
-
 
 score = silhouette_score(X_embedded, y)
 print(f"Silhouette Score: {score:.4f}")

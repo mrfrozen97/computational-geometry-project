@@ -1,6 +1,7 @@
 import numpy as np
 from scipy.spatial.distance import pdist, squareform
 
+
 class TSNE:
     def __init__(self, n_components=2, perplexity=30.0, learning_rate=200,
                  n_iter=1000, early_exaggeration=12.0, random_state=None):
@@ -19,14 +20,14 @@ class TSNE:
         target_entropy = np.log(target_perplexity)
 
         for i in range(n):
-            dist_row = distances[i, np.concatenate((np.r_[0:i], np.r_[i+1:n]))]
+            dist_row = distances[i, np.concatenate((np.r_[0:i], np.r_[i + 1:n]))]
 
             sigma_min, sigma_max = 0, None
             sigma = 1.0  # Initial guess
 
             for _ in range(50):
                 # Compute Gaussian kernel with current sigma
-                p = np.exp(-dist_row / (2 * sigma**2))
+                p = np.exp(-dist_row / (2 * sigma ** 2))
                 p_sum = np.sum(p)
                 if p_sum == 0:
                     p_sum = 1e-12
@@ -47,7 +48,7 @@ class TSNE:
                     sigma = (sigma_min + sigma) / 2 if sigma_min != 0 else sigma / 2
 
             # Final probabilities for this point
-            p = np.exp(-dist_row / (2 * sigma**2))
+            p = np.exp(-dist_row / (2 * sigma ** 2))
             p = p / np.sum(p)
             sigmas[i] = sigma
 
@@ -65,7 +66,7 @@ class TSNE:
         # Compute pairwise affinities
         P = np.zeros((n, n))
         for i in range(n):
-            numerator = np.exp(-distances[i] / (2 * sigmas[i]**2))
+            numerator = np.exp(-distances[i] / (2 * sigmas[i] ** 2))
             numerator[i] = 0  # Set diagonal to zero
             P[i] = numerator / np.sum(numerator)
 
