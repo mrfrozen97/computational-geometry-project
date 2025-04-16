@@ -3,10 +3,10 @@ import json
 import matplotlib.pyplot as plt
 import numpy as np
 from scipy.stats import mode
-from sklearn.datasets import make_moons
+from sklearn.datasets import make_moons, load_iris, load_wine, fetch_openml, load_breast_cancer, make_swiss_roll
 from sklearn.metrics import f1_score, accuracy_score
 
-from src.kmeans import KMeans
+from src.kcenter import KCenter  # Changed import
 from src.tsne import Tsne
 
 
@@ -20,28 +20,35 @@ def map_clusters_to_labels(y_true, y_pred):
 
 
 def test_dataset(X, Y, n_clusters, name):
-    cluster = KMeans(n_clusters=n_clusters, random_state=27, max_iter=300)
+    cluster = KCenter(n_clusters=n_clusters, random_state=27)  # KCenter instance
     cluster.train(X)
-    result = json.load(open("results/kmeans/results.json", "r"))
+    result = json.load(open("results/kcenter/results.json", "r"))  # Changed path
     result[name] = {}
-    Y_Predict = map_clusters_to_labels(Y, cluster.assign_clusters(X))
+    Y_Predict = map_clusters_to_labels(Y, cluster.labels_)  # Use directly from labels_
     print(f"Accuracy: {accuracy_score(Y, Y_Predict)}")
     print(f"F1-Score: {f1_score(Y, Y_Predict, average='macro')}")
     result[name]["accuracy"] = accuracy_score(Y, Y_Predict)
     result[name]["f1-score"] = f1_score(Y, Y_Predict, average='macro')
-    json.dump(result, open("results/kmeans/results.json", "w"), indent=2)
+    result[name]["max_distance"] = cluster.inertia_  # Store K-center specific metric
+    json.dump(result, open("results/kcenter/results.json", "w"), indent=2)
+
+    # Visualization remains similar
     tsne = Tsne(data=X, n_components=2, perplexity=30, learning_rate=200, n_iter=2000)
     Transformed_X = tsne.fit_transform_without_graph(np.vstack((X, cluster.centroids)))
     Transformed_centers = Transformed_X[-n_clusters:]
     Transformed_X = Transformed_X[:-n_clusters]
+
     plt.scatter(Transformed_X[:, 0], Transformed_X[:, 1], c=Y_Predict, cmap='viridis')
-    plt.scatter(Transformed_centers[:, 0], Transformed_centers[:, 1], c='red', s=200, alpha=0.75, marker='X')
-    plt.savefig(f"results/kmeans/{name}_predicted.png", dpi=300, bbox_inches='tight')
+    plt.scatter(Transformed_centers[:, 0], Transformed_centers[:, 1],
+                c='red', s=200, alpha=0.75, marker='X')
+    plt.savefig(f"results/kcenter/{name}_predicted.png", dpi=300, bbox_inches='tight')
     plt.show()
     plt.close()
+
     plt.scatter(Transformed_X[:, 0], Transformed_X[:, 1], c=Y, cmap='viridis')
-    plt.scatter(Transformed_centers[:, 0], Transformed_centers[:, 1], c='red', s=200, alpha=0.75, marker='X')
-    plt.savefig(f"results/kmeans/{name}_actual.png", dpi=300, bbox_inches='tight')
+    plt.scatter(Transformed_centers[:, 0], Transformed_centers[:, 1],
+                c='red', s=200, alpha=0.75, marker='X')
+    plt.savefig(f"results/kcenter/{name}_actual.png", dpi=300, bbox_inches='tight')
     plt.show()
     plt.close()
 
@@ -91,46 +98,55 @@ def generate_multiple_moons(n_moons=6, samples_per_moon=200, noise=0.05, radius=
 
 
 if __name__ == "__main__":
-    # MNIST dataset
-    # mnist = fetch_openml('mnist_784', version=1, as_frame=False)
-    # X, y = mnist["data"], mnist["target"].astype(int)
-    # # Normalize the data (optional, but often helps)
-    # X = X / 255.0
-    #
-    # # Taking first 1000 due to hardware limitations
-    # X_small = X[:1000]
-    # y_small = y[:1000]
-    # test_dataset(X_small, y_small, n_clusters=10, name="MNIST_dataset")
+    # Create directory structure first
+    import os
 
-    # Iris dataset
-    # Load dataset
-    # iris = load_iris()
-    # # iris = load_wine()
-    # X = iris.data
-    # y = iris.target
-    # test_dataset(X, y, n_clusters=3, name="IRIS_datset")
+    os.makedirs("results/kcenter", exist_ok=True)
 
-    # # Wine dataset
-    # wine = load_wine()
-    # X = wine.data
-    # y = wine.target
-    # test_dataset(X, y, n_clusters=5, name="Wine_datset")
+    # Initialize empty results file
+    with open("results/kcenter/results.json", "w") as f:
+        json.dump({}, f)
 
-    # Breast Cancer dataset
-    # cancer = load_breast_cancer()
-    # X = cancer.data
-    # y = cancer.target
-    # test_dataset(X, y, n_clusters=2, name="Cancer_datset")
-
-    # Synthetic Swiss Roll dataset
-    # X, y_cont = make_swiss_roll(n_samples=1000, noise=0.1)
-    # n_classes = 6
-    # y_class = np.digitize(y_cont, bins=np.linspace(y_cont.min(), y_cont.max(), n_classes))
-    # test_dataset(X, y_class, n_clusters=n_classes, name="Swiss_Roll_dataset")
-
+    # Test with synthetic datasets
     X_rings, y_rings = generate_multiple_rings(n_rings=6, samples_per_ring=200, noise=0.08)
     test_dataset(X_rings, y_rings, n_clusters=10, name="Rings_dataset")
 
-    # Generate dataset
-    X, y = generate_multiple_moons()
-    test_dataset(X, y, n_clusters=6, name="Half_moons_dataset")
+    X_moons, y_moons = generate_multiple_moons()
+    test_dataset(X_moons, y_moons, n_clusters=6, name="Half_moons_dataset")
+
+    # MNIST dataset
+    mnist = fetch_openml('mnist_784', version=1, as_frame=False)
+    X, y = mnist["data"], mnist["target"].astype(int)
+    # Normalize the data (optional, but often helps)
+    X = X / 255.0
+
+    # # Taking first 1000 due to hardware limitations
+    X_small = X[:1000]
+    y_small = y[:1000]
+    test_dataset(X_small, y_small, n_clusters=10, name="MNIST_dataset")
+
+    # Iris dataset
+    # Load dataset
+    iris = load_iris()
+    # iris = load_wine()
+    X = iris.data
+    y = iris.target
+    test_dataset(X, y, n_clusters=3, name="IRIS_datset")
+
+    # # Wine dataset
+    wine = load_wine()
+    X = wine.data
+    y = wine.target
+    test_dataset(X, y, n_clusters=5, name="Wine_datset")
+
+    # Breast Cancer dataset
+    cancer = load_breast_cancer()
+    X = cancer.data
+    y = cancer.target
+    test_dataset(X, y, n_clusters=2, name="Cancer_datset")
+
+    # Synthetic Swiss Roll dataset
+    X, y_cont = make_swiss_roll(n_samples=1000, noise=0.1)
+    n_classes = 6
+    y_class = np.digitize(y_cont, bins=np.linspace(y_cont.min(), y_cont.max(), n_classes))
+    test_dataset(X, y_class, n_clusters=n_classes, name="Swiss_Roll_dataset")
