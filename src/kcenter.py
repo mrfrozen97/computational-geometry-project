@@ -1,5 +1,6 @@
 import matplotlib.pyplot as plt
 import numpy as np
+from kneed import KneeLocator
 from sklearn.datasets import make_blobs
 
 
@@ -45,6 +46,30 @@ class KCenter:
                     c='red', s=200, alpha=0.75, marker='X')
         plt.title("K-Center Clustering")
         plt.show()
+
+    def elbow_method(self, X, max_k=10):
+        max_distances = []
+        k_values = range(1, max_k + 1)
+
+        for k in k_values:
+            model = KCenter(n_clusters=k, random_state=42)
+            model.train(X)
+            max_distances.append(model.inertia_)  # Store maximum distance
+
+        # Detect elbow using Kneedle (convex curve)
+        knee = KneeLocator(k_values, max_distances,
+                           curve="convex", direction="decreasing")
+        optimal_k = knee.elbow
+
+        # Plot
+        plt.plot(k_values, max_distances, 'bo-')
+        plt.xlabel('Number of Clusters (k)')
+        plt.ylabel('Maximum Distance')
+        plt.title('Elbow Method for K-Center')
+        plt.grid(True)
+        plt.show()
+
+        return optimal_k
 
 
 # Example usage
