@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
-from src.kmeans import KMeans
+from src.kcenter import KCenter  # Changed import
 from src.tsne import Tsne
 
 if __name__ == "__main__":
@@ -12,27 +12,35 @@ if __name__ == "__main__":
          "gdpp"]].to_numpy()
     Y = data["country"].to_numpy()
 
+    # Normalization remains the same
     row_norms = np.linalg.norm(X, axis=1, keepdims=True)
     row_norms[row_norms == 0] = 1  # avoid division by zero
     X = X / row_norms
 
-    cluster = KMeans(n_clusters=2, random_state=23, max_iter=300)
-    n_clusters = cluster.elbow_method(X, max_k=10)
-    cluster = KMeans(n_clusters=n_clusters, random_state=23, max_iter=300)
+    # K-Center specific initialization
+    cluster = KCenter(n_clusters=2, random_state=23)
+    n_clusters = cluster.elbow_method(X)
+    cluster = KCenter(n_clusters=n_clusters, random_state=23)
     cluster.train(X)
-    Y_predict = cluster.assign_clusters(X)
+
+    # Directly use labels from training
+    Y_predict = cluster.labels_
+
+    # Visualization remains similar
     tsne = Tsne(data=X, n_components=2, perplexity=30, learning_rate=200, n_iter=2000)
     Transformed_X = tsne.fit_transform_without_graph(np.vstack((X, cluster.centroids)))
     Transformed_centers = Transformed_X[-n_clusters:]
     Transformed_X = Transformed_X[:-n_clusters]
 
+    # Country labeling logic
     display_countries = ["United States", "India", "Germany", "Japan", "China", "Brazil", "Afghanistan", "Chad",
-                         "Haiti",
-                         "Mexico", "Hungary", "Turkey", "Norway", "Russia", "Jamaica", "Poland", "Italy"]
+                         "Haiti", "Mexico", "Hungary", "Turkey", "Norway", "Russia", "Jamaica", "Poland", "Italy"]
     for i, label in enumerate(Y):
         if label in display_countries:
             plt.text(Transformed_X[i][0] + 0.05, Transformed_X[i][1] + 0.05, label, fontsize=9, fontweight='bold')
 
     plt.scatter(Transformed_X[:, 0], Transformed_X[:, 1], c=Y_predict, cmap='viridis')
-    plt.scatter(Transformed_centers[:, 0], Transformed_centers[:, 1], c='red', s=200, alpha=0.75, marker='X')
+    plt.scatter(Transformed_centers[:, 0], Transformed_centers[:, 1],
+                c='red', s=200, alpha=0.75, marker='X')
+    plt.title("Country Clustering with K-Center")
     plt.show()
