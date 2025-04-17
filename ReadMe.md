@@ -55,10 +55,6 @@ Values range from -1 to 1:
 * We assign label to cluster centers based on voting method, which means that the label of cluster is majority label of elements in the cluster.
 * Normalize data before use so that each dimension effects the cluster equally
 
-# Custom Metrics Implementation
-* Sutherland-Hodgman Algorithm: Clips one polygon against another to find their intersection
-* Shoelace Formula: Calculates the area of the resulting intersection polygon
-
 
 # References
 
