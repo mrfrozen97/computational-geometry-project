@@ -4,7 +4,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 from scipy.stats import mode
 from sklearn.datasets import make_moons, load_iris, load_wine, fetch_openml, load_breast_cancer, make_swiss_roll
-from sklearn.metrics import f1_score, accuracy_score
+from sklearn.metrics import f1_score, accuracy_score, silhouette_score, davies_bouldin_score, calinski_harabasz_score, \
+    adjusted_rand_score, normalized_mutual_info_score, adjusted_mutual_info_score, mutual_info_score
 
 from src.kcenter import KCenter  # Changed import
 from src.tsne import Tsne
@@ -20,34 +21,58 @@ def map_clusters_to_labels(y_true, y_pred):
 
 
 def test_dataset(X, Y, n_clusters, name):
-    cluster = KCenter(n_clusters=n_clusters, random_state=27)  # KCenter instance
+    # Initialize and train KCenter
+    cluster = KCenter(n_clusters=n_clusters, random_state=27)
     cluster.train(X)
-    result = json.load(open("results/kcenter/results.json", "r"))  # Changed path
+
+    # Load existing results or create a new dict
+    result = json.load(open("results/kcenter/results.json", "r"))  # Ensure directory exists
     result[name] = {}
-    Y_Predict = map_clusters_to_labels(Y, cluster.labels_)  # Use directly from labels_
-    print(f"Accuracy: {accuracy_score(Y, Y_Predict)}")
-    print(f"F1-Score: {f1_score(Y, Y_Predict, average='macro')}")
-    result[name]["accuracy"] = accuracy_score(Y, Y_Predict)
-    result[name]["f1-score"] = f1_score(Y, Y_Predict, average='macro')
-    result[name]["max_distance"] = cluster.inertia_  # Store K-center specific metric
+
+    # Align cluster labels with true labels for accuracy/F1 (if needed)
+    Y_predict = map_clusters_to_labels(Y, cluster.labels_)
+
+    # Basic metrics (accuracy, F1, inertia)
+    print(f"Accuracy: {accuracy_score(Y, Y_predict):.3f}")
+    print(f"F1-Score: {f1_score(Y, Y_predict, average='macro'):.3f}")
+    result[name]["accuracy"] = accuracy_score(Y, Y_predict)
+    result[name]["f1-score"] = f1_score(Y, Y_predict, average='macro')
+    result[name]["max_distance"] = cluster.inertia_
+
+    # Internal metrics (no true labels needed)
+    result[name]["silhouette"] = silhouette_score(X, cluster.labels_)
+    result[name]["davies_bouldin"] = davies_bouldin_score(X, cluster.labels_)
+    result[name]["calinski_harabasz"] = calinski_harabasz_score(X, cluster.labels_)
+
+    # External metrics (require true labels Y)
+    result[name]["adjusted_rand"] = adjusted_rand_score(Y, cluster.labels_)
+    result[name]["normalized_mutual_info"] = normalized_mutual_info_score(Y, cluster.labels_)
+    result[name]["adjusted_mutual_info"] = adjusted_mutual_info_score(Y, cluster.labels_)
+    result[name]["mutual_info"] = mutual_info_score(Y, cluster.labels_)
+
+    # Save updated results
     json.dump(result, open("results/kcenter/results.json", "w"), indent=2)
 
-    # Visualization remains similar
+    # Visualization (t-SNE for clusters and centroids)
     tsne = Tsne(data=X, n_components=2, perplexity=30, learning_rate=200, n_iter=2000)
     Transformed_X = tsne.fit_transform_without_graph(np.vstack((X, cluster.centroids)))
     Transformed_centers = Transformed_X[-n_clusters:]
     Transformed_X = Transformed_X[:-n_clusters]
 
-    plt.scatter(Transformed_X[:, 0], Transformed_X[:, 1], c=Y_Predict, cmap='viridis')
+    # Predicted clusters plot
+    plt.scatter(Transformed_X[:, 0], Transformed_X[:, 1], c=Y_predict, cmap='viridis')
     plt.scatter(Transformed_centers[:, 0], Transformed_centers[:, 1],
                 c='red', s=200, alpha=0.75, marker='X')
+    plt.title(f"{name} (Predicted)")
     plt.savefig(f"results/kcenter/{name}_predicted.png", dpi=300, bbox_inches='tight')
     plt.show()
     plt.close()
 
+    # True labels plot
     plt.scatter(Transformed_X[:, 0], Transformed_X[:, 1], c=Y, cmap='viridis')
     plt.scatter(Transformed_centers[:, 0], Transformed_centers[:, 1],
                 c='red', s=200, alpha=0.75, marker='X')
+    plt.title(f"{name} (True Labels)")
     plt.savefig(f"results/kcenter/{name}_actual.png", dpi=300, bbox_inches='tight')
     plt.show()
     plt.close()

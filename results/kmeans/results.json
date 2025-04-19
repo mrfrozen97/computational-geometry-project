@@ -1,30 +1,86 @@
 {
   "MNIST_dataset": {
-    "accuracy": 0.535,
-    "f1-score": 0.5079175728064995
+    "accuracy": 0.582,
+    "f1-score": 0.5478311606620249,
+    "inertia": 37405.90115136816,
+    "silhouette": 0.07942386296415202,
+    "davies_bouldin": 2.678862913011603,
+    "calinski_harabasz": 41.70885619857695,
+    "adjusted_rand": 0.3206530586508403,
+    "normalized_mutual_info": 0.4917761881041345,
+    "adjusted_mutual_info": 0.4820950988751142,
+    "mutual_info": 1.101089822559684
   },
   "IRIS_datset": {
     "accuracy": 0.8933333333333333,
-    "f1-score": 0.8917748917748919
+    "f1-score": 0.8917748917748919,
+    "inertia": 78.85144142614601,
+    "silhouette": 0.5528190123564095,
+    "davies_bouldin": 0.6619715465007465,
+    "calinski_harabasz": 561.62775662962,
+    "adjusted_rand": 0.7302382722834697,
+    "normalized_mutual_info": 0.7581756800057784,
+    "adjusted_mutual_info": 0.7551191675800484,
+    "mutual_info": 0.8255910976103356
   },
   "Wine_datset": {
-    "accuracy": 0.7078651685393258,
-    "f1-score": 0.6872222272441025
+    "accuracy": 0.7303370786516854,
+    "f1-score": 0.7148042929292929,
+    "inertia": 916379.187153917,
+    "silhouette": 0.5489993239795675,
+    "davies_bouldin": 0.5450474069118009,
+    "calinski_harabasz": 787.0469221178355,
+    "adjusted_rand": 0.31158801033176253,
+    "normalized_mutual_info": 0.4109925606542484,
+    "adjusted_mutual_info": 0.40038509163702524,
+    "mutual_info": 0.5377398878749778
   },
   "Cancer_datset": {
     "accuracy": 0.8541300527240774,
-    "f1-score": 0.82680748849405
+    "f1-score": 0.82680748849405,
+    "inertia": 77943099.87829885,
+    "silhouette": 0.6972646156059464,
+    "davies_bouldin": 0.5044035685410985,
+    "calinski_harabasz": 1300.2082268895424,
+    "adjusted_rand": 0.49142453622455523,
+    "normalized_mutual_info": 0.46479332792160793,
+    "adjusted_mutual_info": 0.46400471284520917,
+    "mutual_info": 0.2788454615572362
   },
   "Swiss_Roll_dataset": {
-    "accuracy": 0.598,
-    "f1-score": 0.4898372074924511
+    "accuracy": 0.561,
+    "f1-score": 0.4684033905125656,
+    "inertia": 38303.47552272065,
+    "silhouette": 0.3283652324570836,
+    "davies_bouldin": 0.9377314809116223,
+    "calinski_harabasz": 470.9793233805323,
+    "adjusted_rand": 0.2860100076483031,
+    "normalized_mutual_info": 0.42049435763883714,
+    "adjusted_mutual_info": 0.4164204267587244,
+    "mutual_info": 0.7142674806394466
   },
   "Rings_dataset": {
-    "accuracy": 0.3825,
-    "f1-score": 0.354944268156783
+    "accuracy": 0.4125,
+    "f1-score": 0.3526157544497996,
+    "inertia": 4515.727562093945,
+    "silhouette": 0.3490897359685299,
+    "davies_bouldin": 0.8294622243141611,
+    "calinski_harabasz": 889.9262901838499,
+    "adjusted_rand": 0.18170643134038433,
+    "normalized_mutual_info": 0.33307529071618275,
+    "adjusted_mutual_info": 0.3267634096327114,
+    "mutual_info": 0.6742565403494738
   },
   "Half_moons_dataset": {
     "accuracy": 0.8333333333333334,
-    "f1-score": 0.7682989977690938
+    "f1-score": 0.7682989977690938,
+    "inertia": 2341.4321346705183,
+    "silhouette": 0.4617476388187175,
+    "davies_bouldin": 0.6940851094288859,
+    "calinski_harabasz": 1388.861604126427,
+    "adjusted_rand": 0.7261491142179455,
+    "normalized_mutual_info": 0.8489413758031988,
+    "adjusted_mutual_info": 0.8480268255334309,
+    "mutual_info": 1.4822830244995195
   }
 }
