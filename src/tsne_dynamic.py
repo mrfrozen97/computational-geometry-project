@@ -39,7 +39,7 @@ class TSNEDynamic(BaseTSNE):
         return False
 
     def fit_transform(self, X, labels):
-        X = self._prepare_optimization(X)
+        self._prepare_optimization(X)
         iteration = 0
         prev_loss = 0
 

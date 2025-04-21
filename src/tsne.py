@@ -7,7 +7,7 @@ from src.base_tsne import BaseTSNE, compute_q_similarities, compute_gradients
 
 class TSNE(BaseTSNE):
     def fit_transform_without_graph(self, X):
-        X = self._prepare_optimization(X)
+        self._prepare_optimization(X)
         prev_loss = 0
         for iteration in range(self.n_iter):
             Q = compute_q_similarities(self.Y)
@@ -27,7 +27,7 @@ class TSNE(BaseTSNE):
         return self.Y
 
     def fit_transform(self, X, class_Y):
-        X = self._prepare_optimization(X)
+        self._prepare_optimization(X)
         fig, ax = plt.subplots(figsize=(8, 6))
         ax.set_xlim(-30, 30)
         ax.set_ylim(-30, 30)
@@ -45,6 +45,6 @@ class TSNE(BaseTSNE):
             ax.set_ylim(self.Y[:, 1].min() - 1, self.Y[:, 1].max() + 1)
             return scatter,
 
-        ani = FuncAnimation(fig, update, frames=self.n_iter // 100, interval=50, blit=True)
+        FuncAnimation(fig, update, frames=self.n_iter // 100, interval=50, blit=True)
         plt.show()
         return self.Y
