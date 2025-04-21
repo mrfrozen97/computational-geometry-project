@@ -3,7 +3,7 @@ import numpy as np
 import pandas as pd
 
 from src.kmeans import KMeans
-from src.tsne import Tsne
+from src.tsne import TSNE
 
 if __name__ == "__main__":
     data = pd.read_csv("data/country/Country-data.csv")
@@ -21,7 +21,7 @@ if __name__ == "__main__":
     cluster = KMeans(n_clusters=n_clusters, random_state=23, max_iter=300)
     cluster.train(X)
     Y_predict = cluster.assign_clusters(X)
-    tsne = Tsne(data=X, n_components=2, perplexity=30, learning_rate=200, n_iter=2000)
+    tsne = TSNE(data=X, n_components=2, perplexity=30, learning_rate=200, n_iter=2000)
     Transformed_X = tsne.fit_transform_without_graph(np.vstack((X, cluster.centroids)))
     Transformed_centers = Transformed_X[-n_clusters:]
     Transformed_X = Transformed_X[:-n_clusters]
