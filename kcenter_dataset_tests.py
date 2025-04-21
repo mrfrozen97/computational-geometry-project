@@ -7,8 +7,8 @@ from sklearn.datasets import make_moons, load_iris, load_wine, fetch_openml, loa
 from sklearn.metrics import f1_score, accuracy_score, silhouette_score, davies_bouldin_score, calinski_harabasz_score, \
     adjusted_rand_score, normalized_mutual_info_score, adjusted_mutual_info_score, mutual_info_score
 
-from src.kcenter import KCenter  # Changed import
-from src.tsne import Tsne
+from src.kcenter import KCenter
+from src.tsne import TSNE
 
 
 def map_clusters_to_labels(y_true, y_pred):
@@ -54,7 +54,7 @@ def test_dataset(X, Y, n_clusters, name):
     json.dump(result, open("results/kcenter/results.json", "w"), indent=2)
 
     # Visualization (t-SNE for clusters and centroids)
-    tsne = Tsne(data=X, n_components=2, perplexity=30, learning_rate=200, n_iter=2000)
+    tsne = TSNE(data=X, n_components=2, perplexity=30, learning_rate=200, n_iter=2000)
     Transformed_X = tsne.fit_transform_without_graph(np.vstack((X, cluster.centroids)))
     Transformed_centers = Transformed_X[-n_clusters:]
     Transformed_X = Transformed_X[:-n_clusters]

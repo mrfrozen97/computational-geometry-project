@@ -1,8 +1,9 @@
-import numpy as np
 import matplotlib.pyplot as plt
-from sklearn.datasets import load_iris, load_wine, load_breast_cancer, make_swiss_roll
-from tsne import Tsne
+import numpy as np
 from sklearn.cluster import DBSCAN
+from sklearn.datasets import load_breast_cancer
+
+from src.tsne import TSNE
 
 
 class ConvexHull2D:
@@ -45,6 +46,7 @@ class ConvexHull2D:
         plt.title("Convex Hull (Graham Scan)")
         plt.show()
 
+
 class CustomMetrics:
     def __init__(self, X, Y, tolerance_percent=0):
         self.X = X
@@ -59,7 +61,7 @@ class CustomMetrics:
             self.hulls[i] = ch
 
         self.plot_hulls()
-        #self.remove_outliers(tolerance_percent)
+        # self.remove_outliers(tolerance_percent)
         self.plot_hulls()
         self.calculate_cluster_score()
 
@@ -68,14 +70,14 @@ class CustomMetrics:
             hulls = self.hulls
         total_area = 0
         for i in hulls:
-            total_area+=self.polygon_area(hulls[i].hull)
+            total_area += self.polygon_area(hulls[i].hull)
 
         hull_points = [hulls[i].hull for i in hulls]
         intersection_area = 0
         for i in range(len(hull_points)):
-            for j in range(i+1, len(hull_points)):
+            for j in range(i + 1, len(hull_points)):
                 intersection_area += self.convex_hull_intersection_area(hull_points[i], hull_points[j])
-        score = 1 - intersection_area/total_area
+        score = 1 - intersection_area / total_area
         print(score)
         return score
 
@@ -115,11 +117,10 @@ class CustomMetrics:
         new_ch.compute_hull()
         self.hulls[label] = new_ch
 
-        #print(f"Removed outlier {point_to_remove} from class {label}")
-
+        # print(f"Removed outlier {point_to_remove} from class {label}")
 
     def remove_outliers(self, tolerance_percent):
-        n = int((tolerance_percent/100)*len(self.X)/len(self.unique_labels))
+        n = int((tolerance_percent / 100) * len(self.X) / len(self.unique_labels))
         print(f"Skipping {n} points.")
         for i in range(n):
             for label in self.unique_labels:
@@ -145,11 +146,12 @@ class CustomMetrics:
     def polygon_area(self, poly):
         """Compute area of a polygon using the shoelace formula."""
         x, y = zip(*poly)
-        return 0.5 * abs(sum(x[i] * y[i+1] - x[i+1] * y[i] for i in range(-1, len(poly)-1)))
+        return 0.5 * abs(sum(x[i] * y[i + 1] - x[i + 1] * y[i] for i in range(-1, len(poly) - 1)))
 
     def inside(self, p, edge_start, edge_end):
         """Check if point p is inside the edge defined by edge_start -> edge_end."""
-        return (edge_end[0] - edge_start[0]) * (p[1] - edge_start[1]) - (edge_end[1] - edge_start[1]) * (p[0] - edge_start[0]) >= 0
+        return (edge_end[0] - edge_start[0]) * (p[1] - edge_start[1]) - (edge_end[1] - edge_start[1]) * (
+                p[0] - edge_start[0]) >= 0
 
     def compute_intersection(self, p1, p2, q1, q2):
         """Compute intersection point of lines p1->p2 and q1->q2."""
@@ -236,22 +238,24 @@ class CustomMetrics:
         plt.title("Convex Hull (Graham Scan)")
         plt.show()
         score_hulls = {}
-        index=0
+        index = 0
         for i in self.sub_hulls.values():
             for j in i:
                 score_hulls[index] = j
-                index+=1
+                index += 1
         self.calculate_cluster_score(score_hulls)
+
 
 # Example usage
 if __name__ == "__main__":
     # Iris dataset
     # Load dataset
-    #iris = load_iris()
-    #iris = load_wine()
+    # iris = load_iris()
+    # iris = load_wine()
     iris = load_breast_cancer()
     X = iris.data
     y = iris.target
+
 
     # X, y_cont = make_swiss_roll(n_samples=1000, noise=0.1)
     # n_classes = 6
@@ -273,7 +277,7 @@ if __name__ == "__main__":
 
 
     X, y = generate_multiple_rings(n_rings=6, samples_per_ring=200, noise=0.08)
-    tsne = Tsne(data=X, n_components=2, perplexity=20, learning_rate=200, n_iter=2000)
+    tsne = TSNE(data=X, n_components=2, perplexity=20, learning_rate=200, n_iter=2000)
     Transformed_X = tsne.fit_transform_without_graph(X)
     metric = CustomMetrics(Transformed_X, y, tolerance_percent=2)
     metric.cluster_splitting()

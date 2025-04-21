@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 from sklearn.datasets import fetch_openml
 
-from src.tsne import Tsne
+from src.tsne import TSNE
 
 if __name__ == "__main__":
     # Load the MNIST dataset
@@ -22,7 +22,7 @@ if __name__ == "__main__":
         color_y.append(colors[temp])
     print(color_y)
     # Run your t-SNE
-    tsne = Tsne(data=X, n_components=2, perplexity=50, learning_rate=200, n_iter=20000)
+    tsne = TSNE(data=X, n_components=2, perplexity=50, learning_rate=200, n_iter=20000)
     X_embedded = tsne.fit_transform(X_small, class_Y=color_y)
 
     # Plot the 2D projection

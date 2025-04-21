@@ -3,7 +3,7 @@ import numpy as np
 import pandas as pd
 
 from src.kcenter import KCenter  # Changed import
-from src.tsne import Tsne
+from src.tsne import TSNE
 
 if __name__ == "__main__":
     data = pd.read_csv("data/country/Country-data.csv")
@@ -27,7 +27,7 @@ if __name__ == "__main__":
     Y_predict = cluster.labels_
 
     # Visualization remains similar
-    tsne = Tsne(data=X, n_components=2, perplexity=30, learning_rate=200, n_iter=2000)
+    tsne = TSNE(data=X, n_components=2, perplexity=30, learning_rate=200, n_iter=2000)
     Transformed_X = tsne.fit_transform_without_graph(np.vstack((X, cluster.centroids)))
     Transformed_centers = Transformed_X[-n_clusters:]
     Transformed_X = Transformed_X[:-n_clusters]
