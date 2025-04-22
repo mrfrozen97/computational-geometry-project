@@ -3,12 +3,12 @@ import json
 import matplotlib.pyplot as plt
 import numpy as np
 from scipy.stats import mode
-from sklearn.datasets import make_moons, load_breast_cancer, load_wine, load_iris, fetch_openml, make_swiss_roll
+from sklearn.datasets import make_moons
 from sklearn.metrics import f1_score, accuracy_score, silhouette_score, davies_bouldin_score, calinski_harabasz_score, \
     adjusted_rand_score, normalized_mutual_info_score, adjusted_mutual_info_score, mutual_info_score
 
 from src.kmeans import KMeans
-from src.tsne import TSNE
+from src.tsne_dynamic import TSNEDynamic
 
 
 def map_clusters_to_labels(y_true, y_pred):
@@ -54,8 +54,8 @@ def test_dataset(X, Y, n_clusters, name):
     json.dump(result, open("results/kmeans/results.json", "w"), indent=2)
 
     # Visualization (t-SNE for clusters and centroids)
-    tsne = TSNE(data=X, n_components=2, perplexity=30, learning_rate=200, n_iter=2000)
-    Transformed_X = tsne.fit_transform_without_graph(np.vstack((X, cluster.centroids)))
+    tsne = TSNEDynamic(data=X, n_components=2, perplexity=30, learning_rate=200, n_iter=2000)
+    Transformed_X = tsne.fit_transform_without_graph(np.vstack((X, cluster.centroids)), labels=Y)
     Transformed_centers = Transformed_X[-n_clusters:]
     Transformed_X = Transformed_X[:-n_clusters]
 
@@ -123,45 +123,45 @@ def generate_multiple_moons(n_moons=6, samples_per_moon=200, noise=0.05, radius=
 
 
 if __name__ == "__main__":
-    # MNIST dataset
-    mnist = fetch_openml('mnist_784', version=1, as_frame=False)
-    X, y = mnist["data"], mnist["target"].astype(int)
-    # Normalize the data (optional, but often helps)
-    X = X / 255.0
-
-    # Taking first 1000 due to hardware limitations
-    X_small = X[:1000]
-    y_small = y[:1000]
-    test_dataset(X_small, y_small, n_clusters=10, name="MNIST_dataset")
-
-    # Iris dataset
-    # Load dataset
-    iris = load_iris()
-    # iris = load_wine()
-    X = iris.data
-    y = iris.target
-    test_dataset(X, y, n_clusters=3, name="IRIS_datset")
-
-    # Wine dataset
-    wine = load_wine()
-    X = wine.data
-    y = wine.target
-    test_dataset(X, y, n_clusters=5, name="Wine_datset")
-
-    # Breast Cancer dataset
-    cancer = load_breast_cancer()
-    X = cancer.data
-    y = cancer.target
-    test_dataset(X, y, n_clusters=2, name="Cancer_datset")
-
-    # Synthetic Swiss Roll dataset
-    X, y_cont = make_swiss_roll(n_samples=1000, noise=0.1)
-    n_classes = 6
-    y_class = np.digitize(y_cont, bins=np.linspace(y_cont.min(), y_cont.max(), n_classes))
-    test_dataset(X, y_class, n_clusters=n_classes, name="Swiss_Roll_dataset")
-
-    X_rings, y_rings = generate_multiple_rings(n_rings=6, samples_per_ring=200, noise=0.08)
-    test_dataset(X_rings, y_rings, n_clusters=10, name="Rings_dataset")
+    # # MNIST dataset
+    # mnist = fetch_openml('mnist_784', version=1, as_frame=False)
+    # X, y = mnist["data"], mnist["target"].astype(int)
+    # # Normalize the data (optional, but often helps)
+    # X = X / 255.0
+    #
+    # # Taking first 1000 due to hardware limitations
+    # X_small = X[:1000]
+    # y_small = y[:1000]
+    # test_dataset(X_small, y_small, n_clusters=10, name="MNIST_dataset")
+    #
+    # # Iris dataset
+    # # Load dataset
+    # iris = load_iris()
+    # # iris = load_wine()
+    # X = iris.data
+    # y = iris.target
+    # test_dataset(X, y, n_clusters=3, name="IRIS_datset")
+    #
+    # # Wine dataset
+    # wine = load_wine()
+    # X = wine.data
+    # y = wine.target
+    # test_dataset(X, y, n_clusters=5, name="Wine_datset")
+    #
+    # # Breast Cancer dataset
+    # cancer = load_breast_cancer()
+    # X = cancer.data
+    # y = cancer.target
+    # test_dataset(X, y, n_clusters=2, name="Cancer_datset")
+    #
+    # # Synthetic Swiss Roll dataset
+    # X, y_cont = make_swiss_roll(n_samples=1000, noise=0.1)
+    # n_classes = 6
+    # y_class = np.digitize(y_cont, bins=np.linspace(y_cont.min(), y_cont.max(), n_classes))
+    # test_dataset(X, y_class, n_clusters=n_classes, name="Swiss_Roll_dataset")
+    #
+    # X_rings, y_rings = generate_multiple_rings(n_rings=6, samples_per_ring=200, noise=0.08)
+    # test_dataset(X_rings, y_rings, n_clusters=10, name="Rings_dataset")
 
     # Generate dataset
     X, y = generate_multiple_moons()

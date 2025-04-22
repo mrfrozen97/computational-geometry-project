@@ -73,14 +73,14 @@
   },
   "Half_moons_dataset": {
     "accuracy": 0.8333333333333334,
-    "f1-score": 0.7682989977690938,
-    "inertia": 2341.4321346705183,
-    "silhouette": 0.4617476388187175,
-    "davies_bouldin": 0.6940851094288859,
-    "calinski_harabasz": 1388.861604126427,
-    "adjusted_rand": 0.7261491142179455,
-    "normalized_mutual_info": 0.8489413758031988,
-    "adjusted_mutual_info": 0.8480268255334309,
-    "mutual_info": 1.4822830244995195
+    "f1-score": 0.7691471265852766,
+    "inertia": 2304.445230068522,
+    "silhouette": 0.4617177951097485,
+    "davies_bouldin": 0.6795814597509443,
+    "calinski_harabasz": 1415.9505355148603,
+    "adjusted_rand": 0.7305642330836511,
+    "normalized_mutual_info": 0.8522615418336713,
+    "adjusted_mutual_info": 0.8513664722802352,
+    "mutual_info": 1.4870898388015064
   }
 }
