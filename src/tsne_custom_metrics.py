@@ -1,9 +1,12 @@
+import json
+
 import numpy as np
 import matplotlib.pyplot as plt
-from sklearn.datasets import load_iris, load_wine, load_breast_cancer, make_swiss_roll
+from sklearn.datasets import load_iris, load_wine, load_breast_cancer, make_swiss_roll, fetch_openml
 from tsne import Tsne
 from sklearn.cluster import DBSCAN
-
+from sklearn.metrics import silhouette_score
+from sklearn.metrics import davies_bouldin_score
 
 class ConvexHull2D:
     def __init__(self, points):
@@ -58,7 +61,7 @@ class CustomMetrics:
             ch.compute_hull()
             self.hulls[i] = ch
 
-        self.plot_hulls()
+        #self.plot_hulls()
         #self.remove_outliers(tolerance_percent)
         self.plot_hulls()
         self.calculate_cluster_score()
@@ -75,7 +78,7 @@ class CustomMetrics:
         for i in range(len(hull_points)):
             for j in range(i+1, len(hull_points)):
                 intersection_area += self.convex_hull_intersection_area(hull_points[i], hull_points[j])
-        score = 1 - intersection_area/total_area
+        score = 1 - intersection_area/max(total_area, 0.000000001)
         print(score)
         return score
 
@@ -241,7 +244,7 @@ class CustomMetrics:
             for j in i:
                 score_hulls[index] = j
                 index+=1
-        self.calculate_cluster_score(score_hulls)
+        return self.calculate_cluster_score(score_hulls)
 
 # Example usage
 if __name__ == "__main__":
@@ -249,13 +252,13 @@ if __name__ == "__main__":
     # Load dataset
     #iris = load_iris()
     #iris = load_wine()
-    iris = load_breast_cancer()
-    X = iris.data
-    y = iris.target
+    #iris = load_breast_cancer()
+    #X = iris.data
+    #y = iris.target
 
-    # X, y_cont = make_swiss_roll(n_samples=1000, noise=0.1)
-    # n_classes = 6
-    # y = np.digitize(y_cont, bins=np.linspace(y_cont.min(), y_cont.max(), n_classes))
+    X, y_cont = make_swiss_roll(n_samples=1000, noise=0.1)
+    n_classes = 6
+    y = np.digitize(y_cont, bins=np.linspace(y_cont.min(), y_cont.max(), n_classes))
     def generate_multiple_rings(n_rings=3, samples_per_ring=300, noise=0.05):
         X = []
         y = []
@@ -272,8 +275,31 @@ if __name__ == "__main__":
         return np.vstack(X), np.array(y)
 
 
-    X, y = generate_multiple_rings(n_rings=6, samples_per_ring=200, noise=0.08)
+    #X, y = generate_multiple_rings(n_rings=6, samples_per_ring=200, noise=0.08)
+    # Load the MNIST dataset
     tsne = Tsne(data=X, n_components=2, perplexity=20, learning_rate=200, n_iter=2000)
     Transformed_X = tsne.fit_transform_without_graph(X)
+
+    DATASET = "Swiss_Roll"
+    score_json = json.load(open("../results/custom_metrics/result.json", "r"))
     metric = CustomMetrics(Transformed_X, y, tolerance_percent=2)
-    metric.cluster_splitting()
+    #metric.remove_outliers(2)
+    metric.plot_hulls()
+    custom_metric_score = metric.calculate_cluster_score()
+    cluster_split_score = metric.cluster_splitting()
+    score_json[DATASET] = {}
+
+    score = silhouette_score(Transformed_X, y)
+    print(f"Silhouette Score: {score:.4f}")
+
+    db_score = davies_bouldin_score(Transformed_X, y)
+    print(f"Davies–Bouldin Index: {db_score:.4f}")
+    score_json[DATASET]["custom_score"] = custom_metric_score
+    score_json[DATASET]["custom_split_score"] = cluster_split_score
+    score_json[DATASET]["silhouette_score"] = score
+    score_json[DATASET]["david_boulden_index"] = db_score
+
+    json.dump(score_json, open("../results/custom_metrics/result.json", "w"), indent=2)
+
+
+

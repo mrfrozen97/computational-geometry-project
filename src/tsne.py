@@ -2,7 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
-
+from matplotlib.animation import PillowWriter
 
 
 class Tsne():
@@ -118,10 +118,10 @@ class Tsne():
 
 
 
-    def fit_transform(self, X, class_Y):
+    def fit_transform(self, X, class_Y, save_path=None):
         np.random.seed(42)
         print("hello")
-        self.Y = np.random.randn(X.shape[0], self.n_components) * 1e-4
+        self.Y = np.random.randn(X.shape[0], self.n_components) #* 1e-4
         self.Y_prev = np.zeros_like(self.Y)
         X = (X - X.mean(axis=0)) / (X.std(axis=0) + 1e-8)
 
@@ -137,14 +137,17 @@ class Tsne():
         ax.set_xlim(-30, 30)
         ax.set_ylim(-30, 30)
         scatter = ax.scatter(self.Y[:, 0], self.Y[:, 1], c=class_Y, cmap='viridis')
-
+        print(self.Y)
 
         def init():
-            scatter.set_offsets(np.empty((0, 2)))  # Empty array
+            ax.set_xlim(min(self.Y[:, 0]), max(self.Y[:, 0]))  # 10% buffer on both sides
+            ax.set_ylim(min(self.Y[:, 1]), max(self.Y[:, 1])) # 10% buffer on both sides
+            scatter.set_offsets(np.column_stack((self.Y[:, 0], self.Y[:, 1])))  # Empty array
             return scatter,
 
 
         def update(iteration):
+
                 for i in range(self.animation_RPS):
 
                     Q = self.compute_q_similarities(self.Y)
@@ -154,11 +157,11 @@ class Tsne():
                     #     self.P /= self.early_exaggeration
 
                     gradients = self._compute_gradients(self.P, Q, self.Y)
-
-                    # Update with momentum
-                    Y_update = self.learning_rate * gradients + self.momentum * (self.Y - self.Y_prev)
-                    self.Y_prev = self.Y.copy()
-                    self.Y -= Y_update
+                    if iteration >= 0:
+                        # Update with momentum
+                        Y_update = self.learning_rate * gradients + self.momentum * (self.Y - self.Y_prev)
+                        self.Y_prev = self.Y.copy()
+                        self.Y -= Y_update
                 #if iteration % 100 == 0 or iteration == self.n_iter - 1:
                 # Check for convergence
                     # if iteration > 0 and np.abs(loss - prev_loss) < 1e-6:
@@ -185,6 +188,8 @@ class Tsne():
                 interval=10,
                 repeat=False
             )
+        if save_path and ".gif" in save_path:
+            ani.save(save_path, writer=PillowWriter(fps=10))
 
         plt.title("Random Moving Points")
         plt.show()
