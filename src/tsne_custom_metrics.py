@@ -1,9 +1,9 @@
 import matplotlib.pyplot as plt
 import numpy as np
 from sklearn.cluster import DBSCAN
-from sklearn.datasets import load_breast_cancer
+from sklearn.datasets import load_breast_cancer, load_iris, load_wine
 
-from src.tsne import TSNE
+from tsne import TSNE
 
 
 class ConvexHull2D:
@@ -60,10 +60,10 @@ class CustomMetrics:
             ch.compute_hull()
             self.hulls[i] = ch
 
-        self.plot_hulls()
-        # self.remove_outliers(tolerance_percent)
-        self.plot_hulls()
-        self.calculate_cluster_score()
+        # self.plot_hulls()
+        # # self.remove_outliers(tolerance_percent)
+        # self.plot_hulls()
+        # self.calculate_cluster_score()
 
     def calculate_cluster_score(self, hulls=None):
         if hulls is None:
@@ -78,7 +78,7 @@ class CustomMetrics:
             for j in range(i + 1, len(hull_points)):
                 intersection_area += self.convex_hull_intersection_area(hull_points[i], hull_points[j])
         score = 1 - intersection_area / total_area
-        print(score)
+        #print(score)
         return score
 
     def remove_outlier(self, label):
@@ -203,6 +203,40 @@ class CustomMetrics:
             return 0.0
         return self.polygon_area(intersect_poly)
 
+    def cluster_splitting_without_graph(self):
+        self.sub_hulls = {}
+
+        for label in self.unique_labels:
+            points = self.X_split[label]
+            clustering = DBSCAN(eps=5, min_samples=5).fit(points)
+            cluster_labels = np.unique(clustering.labels_)
+
+            for cl in cluster_labels:
+                if cl == -1:
+                    continue  # skip noise
+
+                cluster_points = points[clustering.labels_ == cl]
+                if len(cluster_points) >= 3:
+                    ch = ConvexHull2D(cluster_points)
+                    ch.compute_hull()
+                    if label not in self.sub_hulls:
+                        self.sub_hulls[label] = []
+                    self.sub_hulls[label].append(ch)
+
+        label = False
+        for i in self.unique_labels:
+            points = self.X_split[i]
+            if i in self.sub_hulls:
+                for h in self.sub_hulls[i]:
+                    hull = np.array(h.hull + [h.hull[0]])
+        score_hulls = {}
+        index = 0
+        for i in self.sub_hulls.values():
+            for j in i:
+                score_hulls[index] = j
+                index += 1
+        return self.calculate_cluster_score(score_hulls)
+
     def cluster_splitting(self):
         self.sub_hulls = {}
 
@@ -243,16 +277,16 @@ class CustomMetrics:
             for j in i:
                 score_hulls[index] = j
                 index += 1
-        self.calculate_cluster_score(score_hulls)
+        return self.calculate_cluster_score(score_hulls)
 
 
 # Example usage
 if __name__ == "__main__":
     # Iris dataset
     # Load dataset
-    # iris = load_iris()
+    iris = load_iris()
     # iris = load_wine()
-    iris = load_breast_cancer()
+    # iris = load_breast_cancer()
     X = iris.data
     y = iris.target
 
@@ -276,8 +310,8 @@ if __name__ == "__main__":
         return np.vstack(X), np.array(y)
 
 
-    X, y = generate_multiple_rings(n_rings=6, samples_per_ring=200, noise=0.08)
+    # X, y = generate_multiple_rings(n_rings=6, samples_per_ring=200, noise=0.08)
     tsne = TSNE(data=X, n_components=2, perplexity=20, learning_rate=200, n_iter=2000)
     Transformed_X = tsne.fit_transform_without_graph(X)
     metric = CustomMetrics(Transformed_X, y, tolerance_percent=2)
-    metric.cluster_splitting()
+    metric.cluster_splitting_without_graph()

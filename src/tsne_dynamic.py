@@ -1,9 +1,9 @@
 import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib.animation import FuncAnimation
-
-from src.base_tsne import BaseTSNE, compute_gradients, compute_q_similarities
-from src.tsne_custom_metrics import CustomMetrics
+from base_tsne import BaseTSNE, compute_gradients, compute_q_similarities
+from tsne_custom_metrics import CustomMetrics
+from sklearn.datasets import make_moons, load_iris, load_wine, fetch_openml, load_breast_cancer, make_swiss_roll
 
 
 class TSNEDynamic(BaseTSNE):
@@ -35,7 +35,8 @@ class TSNEDynamic(BaseTSNE):
 
             # Dynamic convergence checks
             if labels is not None and iteration % self.check_interval == 0:
-                current_score = CustomMetrics(self.Y, labels).calculate_cluster_score()
+                metric = CustomMetrics(self.Y, labels)
+                current_score = metric.cluster_splitting_without_graph()
 
                 if current_score > self.best_score:
                     self.best_score = current_score
@@ -43,14 +44,16 @@ class TSNEDynamic(BaseTSNE):
                     self.no_improvement_count = 0
                 else:
                     self.no_improvement_count += 1
+                print(current_score, self.no_improvement_count)
 
                 if self.best_score >= self.cluster_threshold:
                     print(f"Converged by cluster score {self.best_score:.4f} at iteration {iteration}")
                     return self.best_Y
 
-                if self.no_improvement_count >= self.patience:
-                    print(f"Stopping early - no improvement for {self.patience} checks")
-                    return self.best_Y
+                # Scope for improvement
+                # if self.no_improvement_count >= self.patience:
+                #     print(f"Stopping early - no improvement for {self.patience} checks")
+                #     return self.best_Y
 
             # Original loss-based convergence
             if iteration % 100 == 0 or iteration == self.n_iter - 1:
@@ -81,7 +84,6 @@ class TSNEDynamic(BaseTSNE):
                 Q = compute_q_similarities(self.Y)
                 print("." * int(i * 20 / self.animation_RPS), end="\r")
                 gradients = compute_gradients(self.P, Q, self.Y)
-
                 # Update with momentum
                 Y_update = self.learning_rate * gradients + self.momentum * (self.Y - self.Y_prev)
                 self.Y_prev = self.Y.copy()
@@ -90,7 +92,8 @@ class TSNEDynamic(BaseTSNE):
                 # Dynamic convergence check
                 global_iter = iteration * self.animation_RPS + i
                 if global_iter % self.check_interval == 0:
-                    current_score = CustomMetrics(self.Y, class_Y).calculate_cluster_score()
+                    metric = CustomMetrics(self.Y, class_Y)
+                    current_score = metric.cluster_splitting_without_graph()
                     if current_score > self.best_score:
                         self.best_score = current_score
                         self.best_Y = self.Y.copy()
@@ -98,10 +101,11 @@ class TSNEDynamic(BaseTSNE):
                     else:
                         self.no_improvement_count += 1
 
-                    if self.best_score >= self.cluster_threshold or self.no_improvement_count >= self.patience:
-                        print(f"\nEarly stop at frame {iteration}")
-                        scatter.set_offsets(self.best_Y)
-                        return scatter,
+                    # Scope for improvement
+                    # if self.best_score >= self.cluster_threshold or self.no_improvement_count >= self.patience:
+                    #     print(f"\nEarly stop at frame {iteration}")
+                    #     scatter.set_offsets(self.best_Y)
+                    #     return scatter,
 
             # Update visualization with best found embedding
             ax.set_xlim(min(self.Y[:, 0]) - 0.1, max(self.Y[:, 0]) + 0.1)
@@ -110,7 +114,7 @@ class TSNEDynamic(BaseTSNE):
             return scatter,
 
         frames = int(self.n_iter / self.animation_RPS)
-        FuncAnimation(
+        ani = FuncAnimation(
             fig,
             update,
             frames=frames,
@@ -123,3 +127,38 @@ class TSNEDynamic(BaseTSNE):
         plt.title("Random Moving Points")
         plt.show()
         return self.Y
+
+
+
+if __name__ == "__main__":
+    # Iris dataset
+    # Load dataset
+    iris = load_iris()
+    # iris = load_wine()
+    X = iris.data
+    y = iris.target
+
+    # # Wine dataset
+    # wine = load_wine()
+    # X = wine.data
+    # y = wine.target
+    #
+    # # Breast Cancer dataset
+    # cancer = load_breast_cancer()
+    # X = cancer.data
+    # y = cancer.target
+
+
+    # Run your t-SNE
+    tsne = TSNEDynamic(data=X, n_components=2, perplexity=50, learning_rate=200, n_iter=20000)
+    X_embedded = tsne.fit_transform_without_graph(X, y)
+
+    # Plot the 2D projection
+    plt.figure(figsize=(8, 6))
+    scatter = plt.scatter(X_embedded[:, 0], X_embedded[:, 1], c=y, cmap='viridis')
+    plt.title("t-SNE visualization of Iris dataset")
+    plt.xlabel("Component 1")
+    plt.ylabel("Component 2")
+    plt.colorbar(scatter)
+    plt.grid(True)
+    plt.show()
