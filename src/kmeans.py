@@ -57,7 +57,6 @@ class KMeans:
         def update(frame):
             if self.converged:
                 return self.scatter_points, self.scatter_center
-            print(frame)
             self.labels_ = self.assign_clusters(X)
             new_centroids = self.update_centroids(X, self.labels_)
 
@@ -168,5 +167,5 @@ if __name__ == "__main__":
 
     # Create and fit model
     kmeans = KMeans(n_clusters=4, random_state=21)
-    print(kmeans.train_and_animate(X))
+    print(kmeans.train_and_animate(X, save_path="../results/kmeans/animations/blobs.gif"))
     labels = kmeans.labels_

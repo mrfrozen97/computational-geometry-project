@@ -1,0 +1,44 @@
+{
+  "Wine": {
+    "custom_score": 0.9824282430684841,
+    "custom_split_score": 1.0,
+    "silhouette_score": 0.4379121774302554,
+    "david_boulden_index": 0.7868211327220064
+  },
+  "Iris": {
+    "custom_score": 0.9402069102570607,
+    "custom_split_score": 1.0,
+    "silhouette_score": 0.42069146776226385,
+    "david_boulden_index": 0.8935315827844779
+  },
+  "Cancer": {
+    "custom_score": 0.606369699548803,
+    "custom_split_score": 0.9522218314198545,
+    "silhouette_score": 0.22645878245423967,
+    "david_boulden_index": 2.028509029519592
+  },
+  "Rings": {
+    "custom_score": -0.21603508653114378,
+    "custom_split_score": 0.9806633469730234,
+    "silhouette_score": -0.012326101361316007,
+    "david_boulden_index": 9.248515054051921
+  },
+  "Swiss_Roll": {
+    "custom_score": -2.5389091605683745,
+    "custom_split_score": 0.7122287234509217,
+    "silhouette_score": -0.05291600103081651,
+    "david_boulden_index": 14.619940718671383
+  },
+  "Half_Moons": {
+    "custom_score": 0.11301144417609166,
+    "custom_split_score": 1.0,
+    "silhouette_score": 0.030916339824210645,
+    "david_boulden_index": 10.909973968383367
+  },
+  "Mnist": {
+    "custom_score": -2.5389091605683745,
+    "custom_split_score": 0.7122287234509217,
+    "silhouette_score": -0.05291600103081651,
+    "david_boulden_index": 14.619940718671383
+  }
+}

@@ -23,7 +23,7 @@ def map_clusters_to_labels(y_true, y_pred):
 def test_dataset(X, Y, n_clusters, name):
     # Initialize and train KCenter
     cluster = KCenter(n_clusters=n_clusters, random_state=27)
-    cluster.train(X)
+    cluster.train_and_animate(X)
 
     # Load existing results or create a new dict
     result = json.load(open("results/kcenter/results.json", "r"))  # Ensure directory exists
