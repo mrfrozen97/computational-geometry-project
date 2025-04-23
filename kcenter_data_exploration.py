@@ -19,7 +19,7 @@ if __name__ == "__main__":
 
     # K-Center specific initialization
     cluster = KCenter(n_clusters=2, random_state=23)
-    n_clusters = cluster.elbow_method(X)
+    n_clusters = elbow_method(X)
     cluster = KCenter(n_clusters=n_clusters, random_state=23)
     cluster.train(X)
 
