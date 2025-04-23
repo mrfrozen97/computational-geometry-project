@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
-from src.kmeans import KMeans
+from src.kmeans import KMeans, elbow_method
 from src.tsne import TSNE
 
 if __name__ == "__main__":
@@ -17,7 +17,7 @@ if __name__ == "__main__":
     X = X / row_norms
 
     cluster = KMeans(n_clusters=2, random_state=23, max_iter=300)
-    n_clusters = cluster.elbow_method(X, max_k=10)
+    n_clusters = elbow_method(X, max_k=10)
     cluster = KMeans(n_clusters=n_clusters, random_state=23, max_iter=300)
     cluster.train(X)
     Y_predict = cluster.assign_clusters(X)

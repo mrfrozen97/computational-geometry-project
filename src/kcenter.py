@@ -44,17 +44,12 @@ class KCenter:
     def initialize_centroids(self, X):
         np.random.seed(self.random_state)
         n_samples = X.shape[0]
-        first_idx = np.random.randint(n_samples)
-        centroids = [X[first_idx]]
-        min_distances = np.full(n_samples, np.inf)
+        centroids = [X[np.random.randint(n_samples)]]
 
         for _ in range(self.n_clusters - 1):
-            last_centroid = centroids[-1]
-            new_distances = np.linalg.norm(X - last_centroid, axis=1)
-            min_distances = np.minimum(min_distances, new_distances)
-
-            next_idx = np.argmax(min_distances)
-            centroids.append(X[next_idx])
+            distances = np.array([np.min([np.linalg.norm(x - c) for c in centroids]) for x in X])
+            next_centroid = X[np.argmax(distances)]
+            centroids.append(next_centroid)
 
         self.centroids = np.array(centroids)
 

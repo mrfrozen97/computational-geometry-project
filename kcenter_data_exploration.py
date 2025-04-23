@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
-from src.kcenter import KCenter, elbow_method  # Changed import
+from src.kcenter import KCenter, elbow_method
 from src.tsne import TSNE
 
 if __name__ == "__main__":
@@ -12,27 +12,22 @@ if __name__ == "__main__":
          "gdpp"]].to_numpy()
     Y = data["country"].to_numpy()
 
-    # Normalization remains the same
     row_norms = np.linalg.norm(X, axis=1, keepdims=True)
     row_norms[row_norms == 0] = 1  # avoid division by zero
     X = X / row_norms
 
-    # K-Center specific initialization
     cluster = KCenter(n_clusters=2, random_state=23)
     n_clusters = elbow_method(X)
     cluster = KCenter(n_clusters=n_clusters, random_state=23)
     cluster.train(X)
 
-    # Directly use labels from training
     Y_predict = cluster.labels_
 
-    # Visualization remains similar
     tsne = TSNE(data=X, n_components=2, perplexity=30, learning_rate=200, n_iter=2000)
     Transformed_X = tsne.fit_transform(np.vstack((X, cluster.centroids)))
     Transformed_centers = Transformed_X[-n_clusters:]
     Transformed_X = Transformed_X[:-n_clusters]
 
-    # Country labeling logic
     display_countries = ["United States", "India", "Germany", "Japan", "China", "Brazil", "Afghanistan", "Chad",
                          "Haiti", "Mexico", "Hungary", "Turkey", "Norway", "Russia", "Jamaica", "Poland", "Italy"]
     for i, label in enumerate(Y):

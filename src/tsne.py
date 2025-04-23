@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib.animation import FuncAnimation
 
-from src.base_tsne import BaseTSNE, compute_q_similarities, compute_gradients
+from .base_tsne import BaseTSNE, compute_q_similarities, compute_gradients
 
 
 class TSNE(BaseTSNE):
@@ -37,21 +37,16 @@ class TSNE(BaseTSNE):
             return scatter,
 
         def update(iteration):
-            print(iteration)
             for i in range(self.animation_RPS):
                 Q = compute_q_similarities(self.Y)
-                print("." * int(i * 20 / self.animation_RPS), end="\r")
                 gradients = compute_gradients(self.P, Q, self.Y)
 
-                # Update with momentum
                 Y_update = self.learning_rate * gradients + self.momentum * (self.Y - self.Y_prev)
                 self.Y_prev = self.Y.copy()
                 self.Y -= Y_update
 
             ax.set_xlim(min(self.Y[:, 0]) - 0.1, max(self.Y[:, 0]) + 0.1)
             ax.set_ylim(min(self.Y[:, 1]) - 0.1, max(self.Y[:, 1]) + 0.1)
-            loss = np.sum(self.P * np.log((self.P + 1e-12) / (Q + 1e-12)))
-            print(f"Iteration {iteration}: KL Divergence = {loss:.4f}")
             scatter.set_offsets(np.column_stack((self.Y[:, 0], self.Y[:, 1])))
             self.iterations = iteration
             return scatter,

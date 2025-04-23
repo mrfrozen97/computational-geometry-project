@@ -5,6 +5,28 @@ from matplotlib.animation import FuncAnimation
 from matplotlib.animation import PillowWriter
 
 
+def elbow_method(X, max_k=10):
+    inertia = []
+    k_values = list(range(1, max_k + 1))
+
+    for k in k_values:
+        model = KMeans(n_clusters=k, random_state=42)
+        model.train(X)
+        inertia.append(model.inertia_)
+
+    knee = KneeLocator(k_values, inertia, curve="convex", direction="decreasing")
+    optimal_k = knee.elbow
+
+    plt.plot(k_values, inertia, 'bo-')
+    plt.xlabel('Number of Clusters (k)')
+    plt.ylabel('Inertia (Sum of Squared Distances)')
+    plt.title('Elbow Method for Optimal k')
+    plt.grid(True)
+    plt.show()
+
+    return optimal_k
+
+
 class KMeans:
     def __init__(self, n_clusters=3, max_iter=300, tol=1e-4, random_state=None):
 
@@ -77,9 +99,6 @@ class KMeans:
         )
         if save_path and ".gif" in save_path:
             ani_holder['ani'].save(save_path, writer=PillowWriter(fps=10))
-
-        else:
-            plt.show()
         plt.show()
         plt.close(fig)
 
@@ -91,19 +110,14 @@ class KMeans:
     def train(self, X):
         self.centroids = self.initialize_centroids(X)
 
-        # Run the algorithm when either we reach max iterations or the centers don't change
         for _ in range(self.max_iter):
-            print(f"Iteration {_}", "\r")
             self.labels_ = self.assign_clusters(X)
             new_centroids = self.update_centroids(X, self.labels_)
-
-            # Stop if centroids don't change
             if np.allclose(self.centroids, new_centroids):
                 break
 
             self.centroids = new_centroids
 
-        # Compute inertia (sum of squared distances to closest center)
         self.inertia_ = 0.0
         for i in range(self.n_clusters):
             cluster_points = X[self.labels_ == i]
@@ -119,25 +133,3 @@ class KMeans:
                     c='red', s=200, alpha=0.75, marker='X')
         plt.title("K-Means Clustering")
         plt.show()
-
-    def elbow_method(self, X, max_k=10):
-        inertias = []
-        k_values = list(range(1, max_k + 1))
-
-        for k in k_values:
-            model = KMeans(n_clusters=k, random_state=42)
-            model.train(X)
-            model.plot_cluster(X)
-            inertias.append(model.inertia_)
-
-        knee = KneeLocator(k_values, inertias, curve="convex", direction="decreasing")
-        optimal_k = knee.elbow
-
-        plt.plot(k_values, inertias, 'bo-')
-        plt.xlabel('Number of Clusters (k)')
-        plt.ylabel('Inertia (Sum of Squared Distances)')
-        plt.title('Elbow Method for Optimal k')
-        plt.grid(True)
-        plt.show()
-
-        return optimal_k

@@ -1,7 +1,7 @@
 import numpy as np
 
-from src.base_tsne import BaseTSNE, compute_gradients, compute_q_similarities
-from src.tsne_custom_metrics import CustomMetrics
+from .base_tsne import BaseTSNE, compute_gradients, compute_q_similarities
+from .tsne_custom_metrics import CustomMetrics
 
 
 class TSNEDynamic(BaseTSNE):
@@ -37,7 +37,6 @@ class TSNEDynamic(BaseTSNE):
             if iteration % 100 == 0 or iteration == self.n_iter - 1:
                 loss = np.sum(self.P * np.log((self.P + 1e-12) / (Q + 1e-12)))
                 if iteration > 0 and np.abs(loss - prev_loss) < 1e-6:
-                    print("Converged by loss stabilization!")
                     self.iterations = iteration
                     return self.Y
                 prev_loss = loss
