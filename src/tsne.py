@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib.animation import FuncAnimation
 
-from base_tsne import BaseTSNE, compute_q_similarities, compute_gradients
+from src.base_tsne import BaseTSNE, compute_q_similarities, compute_gradients
 
 
 class TSNE(BaseTSNE):
@@ -16,12 +16,12 @@ class TSNE(BaseTSNE):
             self.Y_prev = self.Y.copy()
             self.Y -= Y_update
             if iteration % 100 == 0 or iteration == self.n_iter - 1:
-                print(f"Iteration   {iteration}")
                 loss = np.sum(self.P * np.log((self.P + 1e-12) / (Q + 1e-12)))
                 if iteration > 0 and np.abs(loss - prev_loss) < 1e-6:
-                    print("Converged!")
+                    self.iterations = iteration
                     return self.Y
                 prev_loss = loss
+                self.iterations = iteration
         return self.Y
 
     def fit_transform_animated(self, X, class_Y):
@@ -53,6 +53,7 @@ class TSNE(BaseTSNE):
             loss = np.sum(self.P * np.log((self.P + 1e-12) / (Q + 1e-12)))
             print(f"Iteration {iteration}: KL Divergence = {loss:.4f}")
             scatter.set_offsets(np.column_stack((self.Y[:, 0], self.Y[:, 1])))
+            self.iterations = iteration
             return scatter,
 
         frames = int(self.n_iter / self.animation_RPS)

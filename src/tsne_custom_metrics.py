@@ -57,10 +57,7 @@ class CustomMetrics:
             ch.compute_hull()
             self.hulls[i] = ch
 
-        # self.plot_hulls()
-        # # self.remove_outliers(tolerance_percent)
-        # self.plot_hulls()
-        # self.calculate_cluster_score()
+        self.remove_outliers(tolerance_percent)
 
     def calculate_cluster_score(self, hulls=None):
         if hulls is None:
@@ -75,7 +72,6 @@ class CustomMetrics:
             for j in range(i + 1, len(hull_points)):
                 intersection_area += self.convex_hull_intersection_area(hull_points[i], hull_points[j])
         score = 1 - intersection_area / total_area
-        # print(score)
         return score
 
     def remove_outlier(self, label):
@@ -118,7 +114,6 @@ class CustomMetrics:
 
     def remove_outliers(self, tolerance_percent):
         n = int((tolerance_percent / 100) * len(self.X) / len(self.unique_labels))
-        print(f"Skipping {n} points.")
         for i in range(n):
             for label in self.unique_labels:
                 self.remove_outlier(label)
@@ -210,7 +205,7 @@ class CustomMetrics:
 
             for cl in cluster_labels:
                 if cl == -1:
-                    continue  # skip noise
+                    continue
 
                 cluster_points = points[clustering.labels_ == cl]
                 if len(cluster_points) >= 3:
@@ -219,13 +214,6 @@ class CustomMetrics:
                     if label not in self.sub_hulls:
                         self.sub_hulls[label] = []
                     self.sub_hulls[label].append(ch)
-
-        label = False
-        for i in self.unique_labels:
-            points = self.X_split[i]
-            if i in self.sub_hulls:
-                for h in self.sub_hulls[i]:
-                    hull = np.array(h.hull + [h.hull[0]])
         score_hulls = {}
         index = 0
         for i in self.sub_hulls.values():

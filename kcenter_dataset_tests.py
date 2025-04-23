@@ -3,7 +3,7 @@ import json
 import matplotlib.pyplot as plt
 import numpy as np
 from scipy.stats import mode
-from sklearn.datasets import make_moons, load_iris, load_wine, fetch_openml, load_breast_cancer, make_swiss_roll
+from sklearn.datasets import make_moons, load_wine
 from sklearn.metrics import f1_score, accuracy_score, silhouette_score, davies_bouldin_score, calinski_harabasz_score, \
     adjusted_rand_score, normalized_mutual_info_score, adjusted_mutual_info_score, mutual_info_score
 
@@ -22,8 +22,8 @@ def map_clusters_to_labels(y_true, y_pred):
 
 def test_dataset(X, Y, n_clusters, name):
     # Initialize and train KCenter
-    cluster = KCenter(n_clusters=n_clusters, random_state=27)
-    cluster.train_and_animate(X)
+    cluster = KCenter(n_clusters=3, random_state=45)
+    cluster.train(X)
 
     # Load existing results or create a new dict
     result = json.load(open("results/kcenter/results.json", "r"))  # Ensure directory exists
@@ -55,7 +55,7 @@ def test_dataset(X, Y, n_clusters, name):
 
     # Visualization (t-SNE for clusters and centroids)
     tsne = TSNE(data=X, n_components=2, perplexity=30, learning_rate=200, n_iter=2000)
-    Transformed_X = tsne.fit_transform_without_graph(np.vstack((X, cluster.centroids)))
+    Transformed_X = tsne.fit_transform(np.vstack((X, cluster.centroids)))
     Transformed_centers = Transformed_X[-n_clusters:]
     Transformed_X = Transformed_X[:-n_clusters]
 
@@ -132,46 +132,46 @@ if __name__ == "__main__":
     with open("results/kcenter/results.json", "w") as f:
         json.dump({}, f)
 
-    # Test with synthetic datasets
-    X_rings, y_rings = generate_multiple_rings(n_rings=6, samples_per_ring=200, noise=0.08)
-    test_dataset(X_rings, y_rings, n_clusters=10, name="Rings_dataset")
-
-    X_moons, y_moons = generate_multiple_moons()
-    test_dataset(X_moons, y_moons, n_clusters=6, name="Half_moons_dataset")
-
-    # MNIST dataset
-    mnist = fetch_openml('mnist_784', version=1, as_frame=False)
-    X, y = mnist["data"], mnist["target"].astype(int)
-    # Normalize the data (optional, but often helps)
-    X = X / 255.0
-
-    # # Taking first 1000 due to hardware limitations
-    X_small = X[:1000]
-    y_small = y[:1000]
-    test_dataset(X_small, y_small, n_clusters=10, name="MNIST_dataset")
-
-    # Iris dataset
-    # Load dataset
-    iris = load_iris()
-    # iris = load_wine()
-    X = iris.data
-    y = iris.target
-    test_dataset(X, y, n_clusters=3, name="IRIS_datset")
+    # # Test with synthetic datasets
+    # X_rings, y_rings = generate_multiple_rings(n_rings=6, samples_per_ring=200, noise=0.08)
+    # test_dataset(X_rings, y_rings, n_clusters=10, name="Rings_dataset")
+    #
+    # X_moons, y_moons = generate_multiple_moons()
+    # test_dataset(X_moons, y_moons, n_clusters=6, name="Half_moons_dataset")
+    #
+    # # MNIST dataset
+    # mnist = fetch_openml('mnist_784', version=1, as_frame=False)
+    # X, y = mnist["data"], mnist["target"].astype(int)
+    # # Normalize the data (optional, but often helps)
+    # X = X / 255.0
+    #
+    # # # Taking first 1000 due to hardware limitations
+    # X_small = X[:1000]
+    # y_small = y[:1000]
+    # test_dataset(X_small, y_small, n_clusters=10, name="MNIST_dataset")
+    #
+    # # Iris dataset
+    # # Load dataset
+    # iris = load_iris()
+    # # iris = load_wine()
+    # X = iris.data
+    # y = iris.target
+    # test_dataset(X, y, n_clusters=3, name="IRIS_datset")
 
     # # Wine dataset
     wine = load_wine()
     X = wine.data
     y = wine.target
-    test_dataset(X, y, n_clusters=5, name="Wine_datset")
-
-    # Breast Cancer dataset
-    cancer = load_breast_cancer()
-    X = cancer.data
-    y = cancer.target
-    test_dataset(X, y, n_clusters=2, name="Cancer_datset")
-
-    # Synthetic Swiss Roll dataset
-    X, y_cont = make_swiss_roll(n_samples=1000, noise=0.1)
-    n_classes = 6
-    y_class = np.digitize(y_cont, bins=np.linspace(y_cont.min(), y_cont.max(), n_classes))
-    test_dataset(X, y_class, n_clusters=n_classes, name="Swiss_Roll_dataset")
+    test_dataset(X, y, n_clusters=3, name="Wine_datset")
+    #
+    # # Breast Cancer dataset
+    # cancer = load_breast_cancer()
+    # X = cancer.data
+    # y = cancer.target
+    # test_dataset(X, y, n_clusters=2, name="Cancer_datset")
+    #
+    # # Synthetic Swiss Roll dataset
+    # X, y_cont = make_swiss_roll(n_samples=1000, noise=0.1)
+    # n_classes = 6
+    # y_class = np.digitize(y_cont, bins=np.linspace(y_cont.min(), y_cont.max(), n_classes))
+    # test_dataset(X, y_class, n_clusters=n_classes, name="Swiss_Roll_dataset")

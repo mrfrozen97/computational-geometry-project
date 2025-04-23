@@ -22,7 +22,7 @@ if __name__ == "__main__":
     cluster.train(X)
     Y_predict = cluster.assign_clusters(X)
     tsne = TSNE(data=X, n_components=2, perplexity=30, learning_rate=200, n_iter=2000)
-    Transformed_X = tsne.fit_transform_without_graph(np.vstack((X, cluster.centroids)))
+    Transformed_X = tsne.fit_transform(np.vstack((X, cluster.centroids)))
     Transformed_centers = Transformed_X[-n_clusters:]
     Transformed_X = Transformed_X[:-n_clusters]
 

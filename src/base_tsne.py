@@ -39,6 +39,7 @@ class BaseTSNE:
         self.Y = None
         self.Y_prev = None
         self.P = None
+        self.iterations = 0
 
     def _compute_p_matrix(self, distances):
         def binary_search_perplexity(dist_row, target_perplexity):

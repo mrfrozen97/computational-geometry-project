@@ -3,7 +3,6 @@ import matplotlib.pyplot as plt
 import numpy as np
 from kneed import KneeLocator
 from matplotlib.animation import PillowWriter
-from sklearn.datasets import make_blobs
 
 
 def assign_labels(X, centroids):
@@ -45,12 +44,17 @@ class KCenter:
     def initialize_centroids(self, X):
         np.random.seed(self.random_state)
         n_samples = X.shape[0]
-        centroids = [X[np.random.randint(n_samples)]]
+        first_idx = np.random.randint(n_samples)
+        centroids = [X[first_idx]]
+        min_distances = np.full(n_samples, np.inf)
 
         for _ in range(self.n_clusters - 1):
-            distances = np.array([np.min([np.linalg.norm(x - c) for c in centroids]) for x in X])
-            next_centroid = X[np.argmax(distances)]
-            centroids.append(next_centroid)
+            last_centroid = centroids[-1]
+            new_distances = np.linalg.norm(X - last_centroid, axis=1)
+            min_distances = np.minimum(min_distances, new_distances)
+
+            next_idx = np.argmax(min_distances)
+            centroids.append(X[next_idx])
 
         self.centroids = np.array(centroids)
 
@@ -161,32 +165,32 @@ class KCenter:
         self.centroids = np.array(centroids)
 
     def assign_clusters(self, X):
-        distances = np.sqrt(((X[:, np.newaxis] - self.centroids) ** 2).sum(axis=2))
+        distances = np.linalg.norm(X[:, np.newaxis] - self.centroids, axis=2)
         return np.argmin(distances, axis=1)
 
     def train_and_animate(self, X, save_path=None):
         self.initialize_centroids_animation(X, save_path)
         self.labels_ = self.assign_clusters(X)
 
-        point_distances = np.sqrt(((X - self.centroids[self.labels_]) ** 2).sum(axis=1))
+        point_distances = np.linalg.norm(X - self.centroids[self.labels_], axis=1)
         self.inertia_ = np.max(point_distances)
 
     def train_and_animate_cluster_assignments(self, X, save_path=None):
         self.initialize_centroids_animation_cluster_assignments(X, save_path)
         self.labels_ = self.assign_clusters(X)
 
-        point_distances = np.sqrt(((X - self.centroids[self.labels_]) ** 2).sum(axis=1))
+        point_distances = np.linalg.norm(X - self.centroids[self.labels_], axis=1)
         self.inertia_ = np.max(point_distances)
 
     def train(self, X):
         self.initialize_centroids(X)
         self.labels_ = self.assign_clusters(X)
 
-        point_distances = np.sqrt(((X - self.centroids[self.labels_]) ** 2).sum(axis=1))
+        point_distances = np.linalg.norm(X - self.centroids[self.labels_], axis=1)
         self.inertia_ = np.max(point_distances)
 
     def predict(self, X):
-        distances = np.sqrt(((X[:, np.newaxis] - self.centroids) ** 2).sum(axis=2))
+        distances = np.linalg.norm(X[:, np.newaxis] - self.centroids, axis=2)
         return np.argmin(distances, axis=1)
 
     def plot_cluster(self, X):
@@ -195,15 +199,3 @@ class KCenter:
                     c='red', s=200, alpha=0.75, marker='X')
         plt.title("K-Center Clustering")
         plt.show()
-
-
-# Example usage
-if __name__ == "__main__":
-    # Generate sample data
-    X, _ = make_blobs(n_samples=300, centers=4, cluster_std=0.90, random_state=0)
-
-    # Create and fit K-Center model
-    kcenter = KCenter(n_clusters=4, random_state=21)
-    kcenter.train_and_animate_cluster_assignments(X)
-    kcenter.plot_cluster(X)
-    print("Inertia (Maximum Distance):", kcenter.inertia_)

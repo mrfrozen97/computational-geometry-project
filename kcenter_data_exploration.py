@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
-from src.kcenter import KCenter  # Changed import
+from src.kcenter import KCenter, elbow_method  # Changed import
 from src.tsne import TSNE
 
 if __name__ == "__main__":
@@ -28,7 +28,7 @@ if __name__ == "__main__":
 
     # Visualization remains similar
     tsne = TSNE(data=X, n_components=2, perplexity=30, learning_rate=200, n_iter=2000)
-    Transformed_X = tsne.fit_transform_without_graph(np.vstack((X, cluster.centroids)))
+    Transformed_X = tsne.fit_transform(np.vstack((X, cluster.centroids)))
     Transformed_centers = Transformed_X[-n_clusters:]
     Transformed_X = Transformed_X[:-n_clusters]
 

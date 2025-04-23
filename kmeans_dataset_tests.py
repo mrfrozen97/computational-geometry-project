@@ -3,12 +3,12 @@ import json
 import matplotlib.pyplot as plt
 import numpy as np
 from scipy.stats import mode
-from sklearn.datasets import make_moons
+from sklearn.datasets import make_moons, load_wine
 from sklearn.metrics import f1_score, accuracy_score, silhouette_score, davies_bouldin_score, calinski_harabasz_score, \
     adjusted_rand_score, normalized_mutual_info_score, adjusted_mutual_info_score, mutual_info_score
 
 from src.kmeans import KMeans
-from src.tsne_dynamic import TSNEDynamic
+from src.tsne import TSNE
 
 
 def map_clusters_to_labels(y_true, y_pred):
@@ -54,8 +54,8 @@ def test_dataset(X, Y, n_clusters, name):
     json.dump(result, open("results/kmeans/results.json", "w"), indent=2)
 
     # Visualization (t-SNE for clusters and centroids)
-    tsne = TSNEDynamic(data=X, n_components=2, perplexity=30, learning_rate=200, n_iter=2000)
-    Transformed_X = tsne.fit_transform_without_graph(np.vstack((X, cluster.centroids)), labels=Y)
+    tsne = TSNE(data=X, n_components=2, perplexity=30, learning_rate=200, n_iter=2000)
+    Transformed_X = tsne.fit_transform(np.vstack((X, cluster.centroids)))
     Transformed_centers = Transformed_X[-n_clusters:]
     Transformed_X = Transformed_X[:-n_clusters]
 
@@ -142,11 +142,11 @@ if __name__ == "__main__":
     # y = iris.target
     # test_dataset(X, y, n_clusters=3, name="IRIS_datset")
     #
-    # # Wine dataset
-    # wine = load_wine()
-    # X = wine.data
-    # y = wine.target
-    # test_dataset(X, y, n_clusters=5, name="Wine_datset")
+    # Wine dataset
+    wine = load_wine()
+    X = wine.data
+    y = wine.target
+    test_dataset(X, y, n_clusters=5, name="Wine_datset")
     #
     # # Breast Cancer dataset
     # cancer = load_breast_cancer()
@@ -164,5 +164,5 @@ if __name__ == "__main__":
     # test_dataset(X_rings, y_rings, n_clusters=10, name="Rings_dataset")
 
     # Generate dataset
-    X, y = generate_multiple_moons()
-    test_dataset(X, y, n_clusters=6, name="Half_moons_dataset")
+    # X, y = generate_multiple_moons()
+    # test_dataset(X, y, n_clusters=6, name="Half_moons_dataset")

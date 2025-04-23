@@ -3,7 +3,6 @@ import numpy as np
 from kneed import KneeLocator
 from matplotlib.animation import FuncAnimation
 from matplotlib.animation import PillowWriter
-from sklearn.datasets import make_blobs
 
 
 class KMeans:
@@ -71,7 +70,7 @@ class KMeans:
         ani_holder['ani'] = FuncAnimation(
             fig,
             update,
-            frames=self.max_iter,
+            frames=10,
             blit=True,
             interval=frame_delay,
             repeat=False,
@@ -142,11 +141,3 @@ class KMeans:
         plt.show()
 
         return optimal_k
-
-
-# Example usage
-if __name__ == "__main__":
-    X, _ = make_blobs(n_samples=300, centers=4, cluster_std=0.90, random_state=0)
-    kmeans = KMeans(n_clusters=4, random_state=21)
-    kmeans.train_and_animate(X, save_path="../results/kmeans/animations/kmeans.gif")
-    labels = kmeans.labels_
