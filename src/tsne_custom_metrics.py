@@ -1,9 +1,6 @@
 import matplotlib.pyplot as plt
 import numpy as np
 from sklearn.cluster import DBSCAN
-from sklearn.datasets import load_breast_cancer, load_iris, load_wine
-
-from tsne import TSNE
 
 
 class ConvexHull2D:
@@ -78,7 +75,7 @@ class CustomMetrics:
             for j in range(i + 1, len(hull_points)):
                 intersection_area += self.convex_hull_intersection_area(hull_points[i], hull_points[j])
         score = 1 - intersection_area / total_area
-        #print(score)
+        # print(score)
         return score
 
     def remove_outlier(self, label):
@@ -278,40 +275,3 @@ class CustomMetrics:
                 score_hulls[index] = j
                 index += 1
         return self.calculate_cluster_score(score_hulls)
-
-
-# Example usage
-if __name__ == "__main__":
-    # Iris dataset
-    # Load dataset
-    iris = load_iris()
-    # iris = load_wine()
-    # iris = load_breast_cancer()
-    X = iris.data
-    y = iris.target
-
-
-    # X, y_cont = make_swiss_roll(n_samples=1000, noise=0.1)
-    # n_classes = 6
-    # y = np.digitize(y_cont, bins=np.linspace(y_cont.min(), y_cont.max(), n_classes))
-    def generate_multiple_rings(n_rings=3, samples_per_ring=300, noise=0.05):
-        X = []
-        y = []
-
-        for i in range(n_rings):
-            radius = 1 + i * 1.5  # Spread the rings out
-            angles = 2 * np.pi * np.random.rand(samples_per_ring)
-            x = radius * np.cos(angles) + noise * np.random.randn(samples_per_ring)
-            y_ = radius * np.sin(angles) + noise * np.random.randn(samples_per_ring)
-
-            X.append(np.column_stack((x, y_)))
-            y.extend([i] * samples_per_ring)
-
-        return np.vstack(X), np.array(y)
-
-
-    # X, y = generate_multiple_rings(n_rings=6, samples_per_ring=200, noise=0.08)
-    tsne = TSNE(data=X, n_components=2, perplexity=20, learning_rate=200, n_iter=2000)
-    Transformed_X = tsne.fit_transform_without_graph(X)
-    metric = CustomMetrics(Transformed_X, y, tolerance_percent=2)
-    metric.cluster_splitting_without_graph()

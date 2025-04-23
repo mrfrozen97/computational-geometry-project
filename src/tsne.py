@@ -1,13 +1,12 @@
 import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib.animation import FuncAnimation
-from sklearn.datasets import make_moons, load_iris, load_wine, fetch_openml, load_breast_cancer, make_swiss_roll
 
 from base_tsne import BaseTSNE, compute_q_similarities, compute_gradients
 
 
 class TSNE(BaseTSNE):
-    def fit_transform_without_graph(self, X):
+    def fit_transform(self, X):
         self._prepare_optimization(X)
         prev_loss = 0
         for iteration in range(self.n_iter):
@@ -25,7 +24,7 @@ class TSNE(BaseTSNE):
                 prev_loss = loss
         return self.Y
 
-    def fit_transform(self, X, class_Y):
+    def fit_transform_animated(self, X, class_Y):
         self._prepare_optimization(X)
         self.animation_RPS = 100
         fig, ax = plt.subplots(figsize=(8, 6))
@@ -70,37 +69,3 @@ class TSNE(BaseTSNE):
         plt.title("Random Moving Points")
         plt.show()
         return self.Y
-
-
-if __name__ == "__main__":
-    # Iris dataset
-    # Load dataset
-    iris = load_iris()
-    # iris = load_wine()
-    X = iris.data
-    y = iris.target
-
-    # # Wine dataset
-    # wine = load_wine()
-    # X = wine.data
-    # y = wine.target
-    #
-    # # Breast Cancer dataset
-    # cancer = load_breast_cancer()
-    # X = cancer.data
-    # y = cancer.target
-
-
-    # Run your t-SNE
-    tsne = TSNE(data=X, n_components=2, perplexity=50, learning_rate=200, n_iter=20000)
-    X_embedded = tsne.fit_transform(X, y)
-
-    # Plot the 2D projection
-    plt.figure(figsize=(8, 6))
-    scatter = plt.scatter(X_embedded[:, 0], X_embedded[:, 1], c=y, cmap='viridis')
-    plt.title("t-SNE visualization of Iris dataset")
-    plt.xlabel("Component 1")
-    plt.ylabel("Component 2")
-    plt.colorbar(scatter)
-    plt.grid(True)
-    plt.show()
