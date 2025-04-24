@@ -149,7 +149,7 @@ class KCenter:
             next_centroid = X[np.argmax(distances)]
             centroids.append(next_centroid)
             new_centeroids = np.array(centroids)
-            scatter = ax.scatter(X[:, 0], X[:, 1], c=assign_labels(X, centroids), s=50, cmap='viridis')
+            scatter = ax.scatter(X[:, 0], X[:, 1], c="black", s=50, cmap='viridis')
             ax.scatter(new_centeroids[:, 0], new_centeroids[:, 1], c='red', s=200, alpha=0.75, marker='X')
 
         ani = animation.FuncAnimation(fig, update, frames=(self.n_clusters - 1),
