@@ -26,29 +26,6 @@ def compute_gradients(P, Q, Y):
     return grad
 
 
-def binary_search_perplexity(dist_row, target_perplexity):
-    beta = 1.0
-    beta_min, beta_max = -np.inf, np.inf
-    probabilities = 0.0
-    for _ in range(50):
-        affinities = np.exp(-dist_row * beta)
-        sum_affinities = np.sum(affinities)
-        if sum_affinities == 0:
-            sum_affinities = 1e-12
-        probabilities = affinities / sum_affinities
-        entropy = -np.sum(probabilities * np.log2(probabilities + 1e-12))
-        perplexity = 2 ** entropy
-        if abs(perplexity - target_perplexity) < 1e-5:
-            break
-        if perplexity > target_perplexity:
-            beta_min = beta
-            beta = beta * 2 if beta_max == np.inf else (beta + beta_max) / 2
-        else:
-            beta_max = beta
-            beta = beta / 2 if beta_min == -np.inf else (beta + beta_min) / 2
-    return probabilities
-
-
 class BaseTSNE:
     def __init__(self, data, n_components=2, perplexity=30.0,
                  learning_rate=200, n_iter=1000):
@@ -62,23 +39,56 @@ class BaseTSNE:
         self.Y = None
         self.Y_prev = None
         self.P = None
+        self.iterations = 0
+        self.animation_RPS = 100
 
     def _compute_p_matrix(self, distances):
+        def binary_search_perplexity(dist_row, target_perplexity):
+            beta_min = -np.inf
+            beta_max = np.inf
+            beta = 1.0
+
+            for _ in range(50):
+                affinities = np.exp(-dist_row * beta)
+                sum_affinities = np.sum(affinities)
+                if sum_affinities == 0:
+                    sum_affinities = 1e-12
+                probabilities = affinities / sum_affinities
+
+                entropy = -np.sum(probabilities * np.log2(probabilities + 1e-12))
+                perplexity = 2 ** entropy
+
+                perplexity_diff = perplexity - target_perplexity
+
+                if np.abs(perplexity_diff) < 1e-5:
+                    break
+
+                if perplexity_diff > 0:
+                    beta_min = beta
+                    beta = (beta_max + beta) / 2 if beta_max != np.inf else beta * 2
+                else:
+                    beta_max = beta
+                    beta = (beta_min + beta) / 2 if beta_min != -np.inf else beta / 2
+
+            return probabilities
+
         n = distances.shape[0]
         P = np.zeros((n, n))
         for i in range(n):
             P[i] = binary_search_perplexity(distances[i], self.perplexity)
         P = (P + P.T) / (2 * n)
-        return np.maximum(P / np.sum(P), 1e-12)
+        P = np.maximum(P, 1e-12)
+        P = P / np.sum(P)
+        return P
 
     def _initialize_embedding(self, X):
         np.random.seed(42)
         self.Y = np.random.randn(X.shape[0], self.n_components) * 1e-4
         self.Y_prev = np.zeros_like(self.Y)
-        return (X - X.mean(axis=0)) / (X.std(axis=0) + 1e-8)
+        X = (X - X.mean(axis=0)) / (X.std(axis=0) + 1e-8)
+        return X
 
     def _prepare_optimization(self, X):
         X_normalized = self._initialize_embedding(X)
         distances = compute_pairwise_distance(X_normalized)
         self.P = self._compute_p_matrix(distances)
-        return X_normalized
