@@ -1,3 +1,4 @@
+import os
 import time
 
 import numpy as np
@@ -11,7 +12,7 @@ from src.tsne import TSNE
 from src.tsne_dynamic import TSNEDynamic
 
 
-def compare_visualizations(embedding_standard, embedding_dynamic, y):
+def compare_visualizations(embedding_standard, embedding_dynamic, y, dataset_name):
     plt.figure(figsize=(16, 6))
 
     plt.subplot(1, 2, 1)
@@ -25,7 +26,9 @@ def compare_visualizations(embedding_standard, embedding_dynamic, y):
     plt.colorbar(scatter2)
 
     plt.tight_layout()
+    plt.savefig(f"results/tsne_comparison/{dataset_name}_comparison.png", dpi=300, bbox_inches='tight')
     plt.show()
+    plt.close()
 
 
 def run_tsne_methods(X, y, dataset_name):
@@ -56,12 +59,14 @@ def run_tsne_methods(X, y, dataset_name):
         "Dynamic Time (s)": end - start
     })
 
-    compare_visualizations(X_standard, X_dynamic, y)
+    compare_visualizations(X_standard, X_dynamic, y, dataset_name)
 
     return results
 
 
 if __name__ == "__main__":
+    os.makedirs("results/tsne_comparison", exist_ok=True)
+
     all_results = []
     all_results.append(run_tsne_methods(*generate_multiple_rings(n_rings=6, samples_per_ring=200, noise=0.08), "Rings"))
     all_results.append(run_tsne_methods(*generate_multiple_moons(), "Moons"))
@@ -87,4 +92,5 @@ if __name__ == "__main__":
             all_results.append(run_tsne_methods(X, y, name))
 
     df = pd.DataFrame(all_results)
+    df.to_csv("results/tsne_comparison/tsne_dynamic_tests.csv", index=False)
     print(df.to_string(index=False))
